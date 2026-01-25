@@ -14,14 +14,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from sentinel_dv.normalization.redaction import Redactor
-from sentinel_dv.schemas.common import EvidenceRef
 from sentinel_dv.schemas.failures import FailureEvent
-from sentinel_dv.schemas.tests import (
-    TestCase,
-    TestStatus,
-    TestTopology,
-    UvmTopology,
-)
 from sentinel_dv.taxonomy_engine import classify_failure
 from sentinel_dv.utils.bounded_text import extract_excerpt, truncate_text
 
@@ -142,21 +135,31 @@ class UVMLogParser:
         # Extract failures (UVM_ERROR and UVM_FATAL)
         failures = self._extract_failures(messages, log_path)
 
-        # Extract topology
+        # Extract topology (return raw dict, IDs added during indexing)
         topology = self._extract_topology(content)
 
-        # Build test case (if we found a test name)
+        # Build test case dict (if we found a test name)
+        # IDs and run ref will be added during indexing
         test = None
         if test_name:
-            test = TestCase(
-                name=test_name,
-                status=test_status,
-                framework="uvm",
-                duration=None,  # Would need timing info from log
-                seed=None,  # Would need seed info from command line or log
-                evidence=[EvidenceRef(kind="log", path=str(log_path), extract=None)],
-                topology=topology,
-            )
+            test = {
+                "name": test_name,
+                "status": test_status,
+                "framework": "uvm",
+                "duration_ms": None,  # Would need timing info from log
+                "seed": None,  # Would need seed info from command line or log
+                "simulator": None,
+                "dut": None,
+                "evidence": [
+                    {
+                        "kind": "log",
+                        "path": log_path.name,  # Relative path
+                        "span": None,
+                        "extract": None,
+                        "hash": None,
+                    }
+                ],
+            }
 
         return {
             "test": test,
@@ -288,7 +291,7 @@ class UVMLogParser:
         match = self.TEST_NAME_PATTERN.search(content)
         return match.group(1) if match else None
 
-    def _determine_test_status(self, content: str, messages: list[UVMMessage]) -> TestStatus:
+    def _determine_test_status(self, content: str, messages: list[UVMMessage]) -> str:
         """
         Determine overall test status.
 
@@ -297,7 +300,7 @@ class UVMLogParser:
             messages: Parsed UVM messages
 
         Returns:
-            TestStatus enum value
+            Status string ("pass", "fail", etc.)
         """
         # Check for explicit pass/fail markers
         if self.TEST_PASSED_PATTERN.search(content):
@@ -378,7 +381,7 @@ class UVMLogParser:
 
         return failures
 
-    def _extract_topology(self, content: str) -> TestTopology | None:
+    def _extract_topology(self, content: str) -> dict | None:
         """
         Extract test topology from log content.
 
@@ -386,7 +389,7 @@ class UVMLogParser:
             content: Log file content
 
         Returns:
-            TestTopology or None if no topology found
+            Dict representing TestTopology (test_id added during indexing)
         """
         # Extract component hierarchy (simplified)
         components = set()
@@ -398,12 +401,17 @@ class UVMLogParser:
         if not components:
             return None
 
-        # Build simplified UVM topology
-        uvm_top = UvmTopology(
-            test_class="unknown",
-            agents=[],  # Would need more sophisticated parsing
-            scoreboards=[],
-            monitors=[],
-        )
-
-        return TestTopology(framework="uvm", dut_top=None, uvm=uvm_top)
+        # Build simplified UVM topology dict
+        # test_id will be added during indexing
+        return {
+            "uvm": {
+                "test_class": "unknown",
+                "envs": [],
+                "agents": [],
+                "scoreboards": [],
+                "sequencers": [],
+                "drivers": [],
+                "monitors": [],
+            },
+            "interfaces": [],
+        }

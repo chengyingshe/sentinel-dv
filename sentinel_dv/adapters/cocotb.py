@@ -11,9 +11,6 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 
 from sentinel_dv.normalization.redaction import Redactor
-from sentinel_dv.schemas.common import EvidenceRef
-from sentinel_dv.schemas.failures import FailureEvent
-from sentinel_dv.schemas.tests import TestCase
 from sentinel_dv.taxonomy_engine import classify_failure
 from sentinel_dv.utils.bounded_text import truncate_text
 
@@ -74,33 +71,49 @@ class CocotbParser:
                     message=message + "\n" + details, severity="error", framework="cocotb"
                 )
 
-                # Create failure event
-                failure = FailureEvent(
-                    severity=taxonomy.severity,
-                    category=taxonomy.category,
-                    summary=self.redactor.redact(truncate_text(message, 200)),
-                    message=self.redactor.redact(truncate_text(details, 2000)),
-                    tags=taxonomy.tags,
-                    evidence=[
-                        EvidenceRef(
-                            kind="artifact",
-                            path=xml_path.name,  # Use relative path (just filename)
-                            extract=truncate_text(details, 1000),
-                        )
+                # Create failure event dict (IDs added during indexing)
+                failure = {
+                    "severity": taxonomy.severity,
+                    "category": taxonomy.category,
+                    "summary": self.redactor.redact(truncate_text(message, 200)),
+                    "message": self.redactor.redact(truncate_text(details, 2000)),
+                    "time_ns": None,
+                    "phase": None,
+                    "component": None,
+                    "tags": taxonomy.tags,
+                    "evidence": [
+                        {
+                            "kind": "artifact",
+                            "path": xml_path.name,  # Use relative path (just filename)
+                            "span": None,
+                            "extract": truncate_text(details, 1000),
+                            "hash": None,
+                        }
                     ],
-                )
+                }
                 failures.append(failure)
             else:
                 status = "pass"
 
-            # Create test case
-            test = TestCase(
-                name=f"{classname}.{name}" if classname else name,
-                status=status,
-                framework="cocotb",
-                duration=int(time_sec * 1000),  # Convert to ms
-                evidence=[EvidenceRef(kind="artifact", path=xml_path.name)],
-            )
+            # Create test case dict (IDs and run ref added during indexing)
+            test = {
+                "name": f"{classname}.{name}" if classname else name,
+                "status": status,
+                "framework": "cocotb",
+                "duration_ms": int(time_sec * 1000),  # Convert to ms
+                "seed": None,
+                "simulator": None,
+                "dut": None,
+                "evidence": [
+                    {
+                        "kind": "artifact",
+                        "path": xml_path.name,
+                        "span": None,
+                        "extract": None,
+                        "hash": None,
+                    }
+                ],
+            }
             tests.append(test)
 
         return {"tests": tests, "failures": failures}
