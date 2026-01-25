@@ -398,7 +398,7 @@ class UVMLogParser:
         if not components:
             return None
 
-        # Build simplified UVM topology  
+        # Build simplified UVM topology
         uvm_top = UvmTopology(
             test_class="unknown",
             agents=[],  # Would need more sophisticated parsing
