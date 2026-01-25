@@ -48,9 +48,9 @@ class Redactor:
     def __init__(
         self,
         custom_patterns: list[tuple[str, str]] | None = None,
-        redact_emails: bool = True,
+        redact_emails: bool = False,
         redact_ips: bool = False,
-        redact_paths: bool = True,
+        redact_paths: bool = False,
     ):
         """Initialize redactor.
 

@@ -63,7 +63,7 @@ class CocotbParser:
             error_elem = testcase.find("error")
 
             if failure_elem is not None or error_elem is not None:
-                status = TestStatus.FAIL
+                status = "fail"
                 elem = failure_elem if failure_elem is not None else error_elem
 
                 message = elem.get("message", "")
@@ -91,7 +91,7 @@ class CocotbParser:
                 )
                 failures.append(failure)
             else:
-                status = TestStatus.PASS
+                status = "pass"
 
             # Create test case
             test = TestCase(

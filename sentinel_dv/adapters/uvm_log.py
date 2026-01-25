@@ -301,23 +301,23 @@ class UVMLogParser:
         """
         # Check for explicit pass/fail markers
         if self.TEST_PASSED_PATTERN.search(content):
-            return TestStatus.PASS
+            return "pass"
 
         if self.TEST_FAILED_PATTERN.search(content):
-            return TestStatus.FAIL
+            return "fail"
 
         # Check for UVM_FATAL (always fail)
         has_fatal = any(msg.severity == "UVM_FATAL" for msg in messages)
         if has_fatal:
-            return TestStatus.FAIL
+            return "fail"
 
         # Check for UVM_ERROR (usually fail)
         has_error = any(msg.severity == "UVM_ERROR" for msg in messages)
         if has_error:
-            return TestStatus.FAIL
+            return "fail"
 
         # Default to pass if no errors
-        return TestStatus.PASS
+        return "pass"
 
     def _extract_failures(self, messages: list[UVMMessage], log_path: Path) -> list[FailureEvent]:
         """

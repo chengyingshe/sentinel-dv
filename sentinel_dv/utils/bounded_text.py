@@ -98,11 +98,15 @@ def normalize_whitespace(text: str, single_line: bool = False) -> str:
     text = text.replace("\r\n", "\n").replace("\r", "\n")
 
     if single_line:
-        # Convert to single line
+        # Convert to single line and collapse spaces
         text = " ".join(text.split())
     else:
-        # Remove trailing whitespace from lines
-        lines = [line.rstrip() for line in text.split("\n")]
+        # Remove trailing whitespace from lines and collapse multiple spaces
+        lines = []
+        for line in text.split("\n"):
+            # Collapse multiple spaces in each line
+            line = " ".join(line.split())
+            lines.append(line)
         text = "\n".join(lines)
 
     return text.strip()
