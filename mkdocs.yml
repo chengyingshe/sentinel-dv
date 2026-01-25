@@ -1,0 +1,201 @@
+site_name: Sentinel DV
+site_url: https://yourusername.github.io/sentinel-dv/
+site_description: Security-first MCP server for verification intelligence (SystemVerilog/UVM/cocotb)
+site_author: Sentinel DV Team
+repo_url: https://github.com/yourusername/sentinel-dv
+repo_name: yourusername/sentinel-dv
+edit_uri: edit/main/docs/
+copyright: Copyright &copy; 2026 Sentinel DV Team
+
+theme:
+  name: material
+  custom_dir: docs/overrides
+  logo: assets/logo.svg
+  favicon: assets/favicon.png
+  palette:
+    # Light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: deep purple
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to dark mode
+    # Dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: deep purple
+      toggle:
+        icon: material/weather-night
+        name: Switch to light mode
+  font:
+    text: Inter
+    code: Fira Code
+  features:
+    - announce.dismiss
+    - content.action.edit
+    - content.action.view
+    - content.code.annotate
+    - content.code.copy
+    - content.tabs.link
+    - content.tooltips
+    - navigation.footer
+    - navigation.indexes
+    - navigation.instant
+    - navigation.instant.progress
+    - navigation.path
+    - navigation.sections
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.top
+    - navigation.tracking
+    - search.highlight
+    - search.share
+    - search.suggest
+    - toc.follow
+  icon:
+    repo: fontawesome/brands/github
+    edit: material/pencil
+    view: material/eye
+    logo: material/shield-check
+
+plugins:
+  - search:
+      lang: en
+      separator: '[\s\-,:!=\[\]()"/]+|(?!\b)(?=[A-Z][a-z])|\.(?!\d)|&[lg]t;'
+  - git-revision-date-localized:
+      enable_creation_date: true
+      type: timeago
+  - minify:
+      minify_html: true
+
+markdown_extensions:
+  # Code highlighting
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  
+  # Content tabs
+  - pymdownx.tabbed:
+      alternate_style: true
+  
+  # Emojis and icons
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  
+  # Admonitions
+  - admonition
+  - pymdownx.details
+  
+  # Task lists
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  
+  # Keys and marks
+  - pymdownx.keys
+  - pymdownx.mark
+  - pymdownx.caret
+  - pymdownx.tilde
+  
+  # Attributes and HTML
+  - attr_list
+  - md_in_html
+  
+  # Tables and lists
+  - tables
+  - def_list
+  
+  # Table of contents
+  - toc:
+      permalink: true
+      permalink_title: Anchor link to this section
+  
+  # Footnotes
+  - footnotes
+  
+  # Abbreviations
+  - abbr
+
+extra:
+  version:
+    provider: mike
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/yourusername/sentinel-dv
+      name: GitHub Repository
+    - icon: fontawesome/brands/python
+      link: https://pypi.org/project/sentinel-dv/
+      name: PyPI Package
+    - icon: fontawesome/solid/book
+      link: https://yourusername.github.io/sentinel-dv/
+      name: Documentation
+  analytics:
+    provider: google
+    property: G-XXXXXXXXXX  # Replace with your GA4 property
+  
+extra_css:
+  - stylesheets/extra.css
+
+nav:
+  - Home: index.md
+  - Getting Started:
+      - Overview: getting-started/overview.md
+      - Quick Start: getting-started/quick-start.md
+      - Installation: getting-started/installation.md
+      - Configuration: getting-started/configuration.md
+      - First Queries: getting-started/first-queries.md
+  - Architecture:
+      - Overview: architecture/overview.md
+      - Schemas: architecture/schemas.md
+      - ID Strategy: ids.md
+      - Taxonomy Rules: taxonomy.md
+      - Index Store: index-store.md
+      - Indexing: architecture/indexing.md
+      - Security Model: architecture/security.md
+  - Tool Reference:
+      - Overview: tools/overview.md
+      - Discovery Tools: tools/discovery.md
+      - Detail Tools: tools/detail.md
+      - Analysis Tools: tools/analysis.md
+      - Regression Tools: tools/regression.md
+  - Adapters:
+      - Overview: adapters/overview.md
+      - UVM Logs: adapters/uvm.md
+      - cocotb Results: adapters/cocotb.md
+      - Assertions: adapters/assertions.md
+      - Coverage: adapters/coverage.md
+      - Waveforms: adapters/waveforms.md
+      - Custom Adapters: adapters/custom.md
+  - Deployment:
+      - Production Setup: deployment/production.md
+      - Systemd Service: deployment/systemd.md
+      - Docker: deployment/docker.md
+      - Kubernetes: deployment/kubernetes.md
+  - Guides:
+      - Simulator Support: guides/simulator-support.md
+      - Troubleshooting: guides/troubleshooting.md
+      - Performance Tuning: guides/performance.md
+      - Integration Examples: guides/integration.md
+  - API Reference:
+      - Schemas: api/schemas.md
+      - Tools: api/tools.md
+      - Configuration: api/configuration.md
+  - Contributing:
+      - Guidelines: contributing/guidelines.md
+      - Development: contributing/development.md
+      - Testing: contributing/testing.md
+      - Documentation: contributing/documentation.md
+  - About:
+      - Changelog: about/changelog.md
+      - License: about/license.md
+      - Security: about/security.md

@@ -1,0 +1,42 @@
+# Sentinel DV Configuration Example
+# Copy this file and customize for your environment
+
+# Artifact roots (read-only directories containing verification artifacts)
+artifact_roots:
+  - /path/to/verification/regressions
+  - /path/to/uvm/logs
+  # Add more as needed
+
+# Index storage configuration
+index:
+  type: duckdb  # Options: duckdb, sqlite, json
+  path: ./sentinel_dv.db  # Database file path
+
+# Adapter configuration (enable/disable parsers)
+adapters:
+  uvm: true              # Parse UVM logs
+  cocotb: true           # Parse cocotb results
+  assertions: true       # Parse assertion maps and failures
+  coverage: true         # Parse coverage reports
+  waveform_summary: false  # Parse waveform summaries (experimental)
+
+# Security limits
+security:
+  max_response_bytes: 2097152    # 2MB max response size
+  max_page_size: 200             # Max items per page
+  max_evidence_refs: 10          # Max evidence refs per item
+  max_excerpt_length: 1024       # Max excerpt characters
+  max_message_length: 4096       # Max failure message length
+  max_tags_per_event: 20         # Max tags per failure
+  max_coverage_metrics: 200      # Max metrics per coverage summary
+  max_bins_missed: 50            # Max missed bins listed
+
+# Redaction configuration
+redaction:
+  enabled: true
+  patterns:
+    # Add custom patterns (regex)
+    # - 'my_secret_pattern'
+  redact_emails: true       # Redact email addresses
+  redact_ips: false         # Redact IP addresses
+  redact_paths: true        # Redact absolute file paths

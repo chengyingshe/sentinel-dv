@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<testsuites name="cocotb-results">
+  <testsuite name="test_counter" tests="2" errors="0" failures="1" skipped="0" time="0.125">
+    <testcase classname="test_counter" name="test_increment" time="0.05">
+      <system-out>Counter incremented successfully</system-out>
+    </testcase>
+    <testcase classname="test_counter" name="test_overflow" time="0.075">
+      <failure message="AssertionError: Counter overflow not handled correctly">
+Traceback (most recent call last):
+  File "test_counter.py", line 45, in test_overflow
+    assert dut.count.value == 0, "Counter should wrap to 0"
+AssertionError: Counter overflow not handled correctly
+Expected: 0
+Got: 255
+      </failure>
+    </testcase>
+  </testsuite>
+</testsuites>
