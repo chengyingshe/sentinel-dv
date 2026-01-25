@@ -294,20 +294,14 @@ class IndexStore:
         if not self._conn:
             raise RuntimeError("Not connected to database")
 
-        self._conn.execute(
-            "INSERT OR REPLACE INTO meta (key, value) VALUES (?, ?)",
-            [key, value]
-        )
+        self._conn.execute("INSERT OR REPLACE INTO meta (key, value) VALUES (?, ?)", [key, value])
 
     def _get_metadata(self, key: str) -> str | None:
         """Get metadata value by key."""
         if not self._conn:
             raise RuntimeError("Not connected to database")
 
-        result = self._conn.execute(
-            "SELECT value FROM meta WHERE key = ?",
-            [key]
-        ).fetchone()
+        result = self._conn.execute("SELECT value FROM meta WHERE key = ?", [key]).fetchone()
 
         return result[0] if result else None
 
@@ -333,27 +327,34 @@ class IndexStore:
 
         index_built_at = datetime.utcnow().isoformat() + "Z"
 
-        self._conn.execute("""
+        self._conn.execute(
+            """
             INSERT INTO runs (
                 run_id, run_id_full, suite, created_at, status,
                 ci_system, ci_build_id, ci_job_url,
                 artifact_manifest_hash, index_built_at
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """, [
-            run_id, run_id_full, suite, created_at, status,
-            ci_system, ci_build_id, ci_job_url,
-            artifact_manifest_hash, index_built_at
-        ])
+        """,
+            [
+                run_id,
+                run_id_full,
+                suite,
+                created_at,
+                status,
+                ci_system,
+                ci_build_id,
+                ci_job_url,
+                artifact_manifest_hash,
+                index_built_at,
+            ],
+        )
 
     def get_run(self, run_id: str) -> dict[str, Any] | None:
         """Get run by ID."""
         if not self._conn:
             raise RuntimeError("Not connected to database")
 
-        result = self._conn.execute(
-            "SELECT * FROM runs WHERE run_id = ?",
-            [run_id]
-        ).fetchone()
+        result = self._conn.execute("SELECT * FROM runs WHERE run_id = ?", [run_id]).fetchone()
 
         if not result:
             return None
@@ -392,17 +393,29 @@ class IndexStore:
         if not self._conn:
             raise RuntimeError("Not connected to database")
 
-        self._conn.execute("""
+        self._conn.execute(
+            """
             INSERT INTO tests (
                 test_id, test_id_full, run_id, framework, name, seed,
                 status, duration_ms, sim_vendor, sim_version, dut_top,
                 created_at
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """, [
-            test_id, test_id_full, run_id, framework, name, seed,
-            status, duration_ms, sim_vendor, sim_version, dut_top,
-            created_at
-        ])
+        """,
+            [
+                test_id,
+                test_id_full,
+                run_id,
+                framework,
+                name,
+                seed,
+                status,
+                duration_ms,
+                sim_vendor,
+                sim_version,
+                dut_top,
+                created_at,
+            ],
+        )
 
     def count_tests(self) -> int:
         """Get total number of indexed tests."""
@@ -439,19 +452,32 @@ class IndexStore:
         tags_json = json.dumps(tags)
         tags_flat = " ".join(t.lower() for t in tags)
 
-        self._conn.execute("""
+        self._conn.execute(
+            """
             INSERT INTO failures (
                 failure_id, failure_id_full, test_id, run_id,
                 severity, category, summary, message,
                 time_ns, phase, component,
                 tags_json, tags_flat, signature_id
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """, [
-            failure_id, failure_id_full, test_id, run_id,
-            severity, category, summary, message,
-            time_ns, phase, component,
-            tags_json, tags_flat, signature_id
-        ])
+        """,
+            [
+                failure_id,
+                failure_id_full,
+                test_id,
+                run_id,
+                severity,
+                category,
+                summary,
+                message,
+                time_ns,
+                phase,
+                component,
+                tags_json,
+                tags_flat,
+                signature_id,
+            ],
+        )
 
     def count_failures(self) -> int:
         """Get total number of indexed failures."""
@@ -514,8 +540,7 @@ class IndexStore:
 
         # Get total count
         count_result = self._conn.execute(
-            f"SELECT COUNT(*) FROM tests WHERE {where_sql}",
-            params
+            f"SELECT COUNT(*) FROM tests WHERE {where_sql}", params
         ).fetchone()
         total = count_result[0] if count_result else 0
 
@@ -523,12 +548,15 @@ class IndexStore:
         offset = (page - 1) * page_size
         order = "DESC" if sort_desc else "ASC"
 
-        results = self._conn.execute(f"""
+        results = self._conn.execute(
+            f"""
             SELECT * FROM tests
             WHERE {where_sql}
             ORDER BY {sort_by} {order}, test_id ASC
             LIMIT ? OFFSET ?
-        """, params + [page_size, offset]).fetchall()
+        """,
+            params + [page_size, offset],
+        ).fetchall()
 
         columns = [desc[0] for desc in self._conn.description]
         return [dict(zip(columns, row, strict=False)) for row in results], total
@@ -586,20 +614,22 @@ class IndexStore:
 
         # Get total count
         count_result = self._conn.execute(
-            f"SELECT COUNT(*) FROM failures WHERE {where_sql}",
-            params
+            f"SELECT COUNT(*) FROM failures WHERE {where_sql}", params
         ).fetchone()
         total = count_result[0] if count_result else 0
 
         # Get paginated results
         offset = (page - 1) * page_size
 
-        results = self._conn.execute(f"""
+        results = self._conn.execute(
+            f"""
             SELECT * FROM failures
             WHERE {where_sql}
             ORDER BY time_ns DESC, failure_id ASC
             LIMIT ? OFFSET ?
-        """, params + [page_size, offset]).fetchall()
+        """,
+            params + [page_size, offset],
+        ).fetchall()
 
         columns = [desc[0] for desc in self._conn.description]
         return [dict(zip(columns, row, strict=False)) for row in results], total

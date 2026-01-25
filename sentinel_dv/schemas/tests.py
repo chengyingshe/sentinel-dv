@@ -111,9 +111,7 @@ class UvmTopology(BaseModel):
     scoreboards: list[UvmComponent] = Field(
         default_factory=list, description="Scoreboard components"
     )
-    sequencers: list[UvmComponent] = Field(
-        default_factory=list, description="Sequencer components"
-    )
+    sequencers: list[UvmComponent] = Field(default_factory=list, description="Sequencer components")
     drivers: list[UvmComponent] = Field(default_factory=list, description="Driver components")
     monitors: list[UvmComponent] = Field(default_factory=list, description="Monitor components")
 

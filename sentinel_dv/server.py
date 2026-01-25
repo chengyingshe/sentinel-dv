@@ -64,6 +64,7 @@ def init_server(config_path: Path | None = None) -> None:
 # MCP Tool Definitions
 # ============================================================================
 
+
 @mcp.tool()
 def runs_list(
     suite: str | None = Field(None, description="Filter by suite name"),
@@ -115,7 +116,7 @@ def tests_list(
         status=status,
         name_pattern=name_pattern,
         page=page,
-        page_size=page_size
+        page_size=page_size,
     )
 
 
@@ -143,7 +144,7 @@ def failures_list(
         severity=severity,
         tags_any=tags_any,
         page=page,
-        page_size=page_size
+        page_size=page_size,
     )
 
 
@@ -178,6 +179,7 @@ def runs_diff(
 # ============================================================================
 # Server lifecycle
 # ============================================================================
+
 
 def main():
     """Main entry point for the MCP server."""

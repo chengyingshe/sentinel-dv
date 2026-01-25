@@ -14,9 +14,7 @@ class SecurityLimits(BaseModel):
     max_response_bytes: int = Field(
         default=2_097_152, ge=1024, description="Maximum response size in bytes (2MB default)"
     )
-    max_page_size: int = Field(
-        default=200, ge=1, le=1000, description="Maximum items per page"
-    )
+    max_page_size: int = Field(default=200, ge=1, le=1000, description="Maximum items per page")
     max_evidence_refs: int = Field(
         default=10, ge=1, le=100, description="Maximum evidence references per item"
     )
@@ -41,9 +39,7 @@ class RedactionConfig(BaseModel):
     """Redaction configuration."""
 
     enabled: bool = Field(default=True, description="Enable automatic redaction")
-    patterns: list[str] = Field(
-        default_factory=list, description="Custom regex patterns to redact"
-    )
+    patterns: list[str] = Field(default_factory=list, description="Custom regex patterns to redact")
     redact_emails: bool = Field(default=True, description="Redact email addresses")
     redact_ips: bool = Field(default=False, description="Redact IP addresses")
     redact_paths: bool = Field(default=True, description="Redact absolute file paths")
@@ -76,9 +72,7 @@ class SentinelDVConfig(BaseModel):
     adapters: AdaptersConfig = Field(
         default_factory=AdaptersConfig, description="Adapter configuration"
     )
-    security: SecurityLimits = Field(
-        default_factory=SecurityLimits, description="Security limits"
-    )
+    security: SecurityLimits = Field(default_factory=SecurityLimits, description="Security limits")
     redaction: RedactionConfig = Field(
         default_factory=RedactionConfig, description="Redaction configuration"
     )

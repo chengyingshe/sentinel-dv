@@ -22,9 +22,7 @@ class RegressionSummary(BaseModel):
     """High-level regression summary over a time window."""
 
     suite: str = Field(..., description="Suite name")
-    window: dict[str, datetime] = Field(
-        ..., description="Time window (start, end)"
-    )
+    window: dict[str, datetime] = Field(..., description="Time window (start, end)")
     runs: list[RunRef] = Field(..., description="Runs in this regression")
     pass_rate: float = Field(..., ge=0.0, le=100.0, description="Overall pass rate (0-100)")
     top_fail_signatures: list[FailureSignature] = Field(

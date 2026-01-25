@@ -12,6 +12,7 @@ from sentinel_dv.schemas.common import PaginationInfo
 # Tool implementations
 # ============================================================================
 
+
 def list_runs(
     store: IndexStore,
     suite: str | None = None,
@@ -36,11 +37,8 @@ def list_runs(
     return {
         "runs": [],
         "pagination": PaginationInfo(
-            page=page,
-            page_size=page_size,
-            total_items=0,
-            total_pages=0
-        ).model_dump()
+            page=page, page_size=page_size, total_items=0, total_pages=0
+        ).model_dump(),
     }
 
 
@@ -91,7 +89,7 @@ def list_tests(
         status=status,
         name_pattern=name_pattern,
         page=page,
-        page_size=page_size
+        page_size=page_size,
     )
 
     total_pages = (total + page_size - 1) // page_size
@@ -99,11 +97,8 @@ def list_tests(
     return {
         "tests": results,
         "pagination": PaginationInfo(
-            page=page,
-            page_size=page_size,
-            total_items=total,
-            total_pages=total_pages
-        ).model_dump()
+            page=page, page_size=page_size, total_items=total, total_pages=total_pages
+        ).model_dump(),
     }
 
 
@@ -140,7 +135,7 @@ def list_failures(
         severity=severity,
         tags_any=tags_any,
         page=page,
-        page_size=page_size
+        page_size=page_size,
     )
 
     total_pages = (total + page_size - 1) // page_size
@@ -148,11 +143,8 @@ def list_failures(
     return {
         "failures": results,
         "pagination": PaginationInfo(
-            page=page,
-            page_size=page_size,
-            total_items=total,
-            total_pages=total_pages
-        ).model_dump()
+            page=page, page_size=page_size, total_items=total, total_pages=total_pages
+        ).model_dump(),
     }
 
 
@@ -173,12 +165,7 @@ def get_regression_summary(
         Regression summary
     """
     # Simplified implementation
-    return {
-        "suite": suite,
-        "window_days": window_days,
-        "pass_rate": 0.0,
-        "top_signatures": []
-    }
+    return {"suite": suite, "window_days": window_days, "pass_rate": 0.0, "top_signatures": []}
 
 
 def compare_runs(
@@ -203,5 +190,5 @@ def compare_runs(
         "compare_run_id": compare_run_id,
         "test_changes": [],
         "new_failures": [],
-        "resolved_failures": []
+        "resolved_failures": [],
     }

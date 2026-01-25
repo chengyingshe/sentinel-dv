@@ -27,10 +27,10 @@ def normalize_string(s: str, case_sensitive: bool = True) -> str:
     s = s.strip()
 
     # Normalize line endings
-    s = s.replace('\r\n', '\n').replace('\r', '\n')
+    s = s.replace("\r\n", "\n").replace("\r", "\n")
 
     # Replace platform-dependent path separators
-    s = s.replace('\\', '/')
+    s = s.replace("\\", "/")
 
     # Lowercase if not case-sensitive
     if not case_sensitive:
@@ -50,21 +50,19 @@ def strip_volatile(s: str) -> str:
         String with volatile data replaced with placeholders
     """
     # Replace absolute paths (heuristic: starts with / or C:\)
-    s = re.sub(r'(?:^|(?<=\s))(?:[A-Z]:|)/[\w/.-]+', '<ROOT>', s)
+    s = re.sub(r"(?:^|(?<=\s))(?:[A-Z]:|)/[\w/.-]+", "<ROOT>", s)
 
     # Replace hostnames (heuristic: hostname.domain pattern)
-    s = re.sub(r'\b[\w-]+\.[\w.-]+\.(?:com|org|net|edu|io|local)\b', '<HOST>', s)
+    s = re.sub(r"\b[\w-]+\.[\w.-]+\.(?:com|org|net|edu|io|local)\b", "<HOST>", s)
 
     # Replace ISO timestamps
     s = re.sub(
-        r'\d{4}-\d{2}-\d{2}[T\s]\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})?',
-        '<TS>',
-        s
+        r"\d{4}-\d{2}-\d{2}[T\s]\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})?", "<TS>", s
     )
 
     # Replace temporary directory patterns
-    s = re.sub(r'/tmp/[\w-]+', '<TMP>', s)
-    s = re.sub(r'\\Temp\\[\w-]+', '<TMP>', s)
+    s = re.sub(r"/tmp/[\w-]+", "<TMP>", s)
+    s = re.sub(r"\\Temp\\[\w-]+", "<TMP>", s)
 
     return s
 
@@ -79,7 +77,7 @@ def canonical_json(obj: dict[str, Any]) -> str:
     Returns:
         Canonical JSON string (sorted keys, no whitespace, UTF-8)
     """
-    return json.dumps(obj, sort_keys=True, separators=(',', ':'), ensure_ascii=False)
+    return json.dumps(obj, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
 
 
 def sha256_hex(data: str) -> str:
@@ -92,7 +90,7 @@ def sha256_hex(data: str) -> str:
     Returns:
         Lowercase hex digest
     """
-    return hashlib.sha256(data.encode('utf-8')).hexdigest()
+    return hashlib.sha256(data.encode("utf-8")).hexdigest()
 
 
 def short_id(prefix: str, full_hash: str, length: int = 12) -> str:
@@ -122,12 +120,13 @@ def normalize_url(url: str) -> str:
     """
     parsed = urlparse(url)
     # Use only stable parts: scheme, netloc, path
-    return f"{parsed.scheme}://{parsed.netloc}{parsed.path}".rstrip('/')
+    return f"{parsed.scheme}://{parsed.netloc}{parsed.path}".rstrip("/")
 
 
 # ============================================================================
 # run_id generation
 # ============================================================================
+
 
 def generate_run_id(
     suite: str,
@@ -180,7 +179,7 @@ def generate_run_id(
         sorted_manifest = sorted(artifact_manifest)
 
         # Create manifest hash
-        manifest_str = '\n'.join(f"{path}:{hash}" for path, hash in sorted_manifest)
+        manifest_str = "\n".join(f"{path}:{hash}" for path, hash in sorted_manifest)
         artifact_manifest_hash = sha256_hex(manifest_str)
 
         inputs = {
@@ -197,6 +196,7 @@ def generate_run_id(
 # ============================================================================
 # test_id generation
 # ============================================================================
+
 
 def generate_test_id(
     run_id_full: str,
@@ -257,6 +257,7 @@ def generate_test_id(
 # failure_id generation
 # ============================================================================
 
+
 def generate_failure_id(
     test_id_full: str,
     severity: str,
@@ -306,11 +307,10 @@ def generate_failure_id(
 
     # Evidence fingerprint for disambiguation
     if evidence_paths:
-        evidence_strs = sorted([
-            f"{path}:{start_line}:{end_line}"
-            for path, start_line, end_line in evidence_paths
-        ])
-        evidence_fingerprint = sha256_hex('\n'.join(evidence_strs))
+        evidence_strs = sorted(
+            [f"{path}:{start_line}:{end_line}" for path, start_line, end_line in evidence_paths]
+        )
+        evidence_fingerprint = sha256_hex("\n".join(evidence_strs))
         inputs["evidence_fingerprint"] = evidence_fingerprint
 
     failure_id_full = sha256_hex(canonical_json(inputs))
@@ -320,6 +320,7 @@ def generate_failure_id(
 # ============================================================================
 # signature_id generation (for regression clustering)
 # ============================================================================
+
 
 def signature_normalize_summary(summary: str) -> str:
     """
@@ -336,23 +337,23 @@ def signature_normalize_summary(summary: str) -> str:
     s = normalize_string(summary)
 
     # Replace hex literals
-    s = re.sub(r'0x[0-9a-fA-F]+', '<HEX>', s, flags=re.IGNORECASE)
+    s = re.sub(r"0x[0-9a-fA-F]+", "<HEX>", s, flags=re.IGNORECASE)
 
     # Replace decimal numbers
-    s = re.sub(r'\b\d+\b', '<NUM>', s)
+    s = re.sub(r"\b\d+\b", "<NUM>", s)
 
     # Replace time units
-    s = re.sub(r'<NUM>\s*(?:ns|us|ms|ps|fs)', '<TIME>', s, flags=re.IGNORECASE)
+    s = re.sub(r"<NUM>\s*(?:ns|us|ms|ps|fs)", "<TIME>", s, flags=re.IGNORECASE)
 
     # Replace file paths
-    s = re.sub(r'[\w/.-]+\.(?:sv|v|svh|vh|py|cpp|c|h)', '<PATH>', s)
+    s = re.sub(r"[\w/.-]+\.(?:sv|v|svh|vh|py|cpp|c|h)", "<PATH>", s)
 
     # Replace instance paths (optional, configurable)
     # Pattern: tb.top.env.agent[3].drv
-    s = re.sub(r'\b\w+(?:\.\w+|\[\d+\])+', '<INST>', s)
+    s = re.sub(r"\b\w+(?:\.\w+|\[\d+\])+", "<INST>", s)
 
     # Collapse whitespace
-    s = re.sub(r'\s+', ' ', s).strip()
+    s = re.sub(r"\s+", " ", s).strip()
 
     return s
 
@@ -396,6 +397,7 @@ def generate_signature_id(
 # ============================================================================
 # Collision handling
 # ============================================================================
+
 
 def extend_short_id(prefix: str, full_hash: str, existing_ids: set[str]) -> str:
     """

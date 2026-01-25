@@ -4,7 +4,6 @@ Ensures text fields don't exceed size limits and are properly truncated.
 """
 
 
-
 def truncate_text(
     text: str,
     max_length: int,

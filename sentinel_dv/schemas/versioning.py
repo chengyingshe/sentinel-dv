@@ -3,7 +3,6 @@
 This module defines schema versioning policy and compatibility checking.
 """
 
-
 from pydantic import BaseModel, Field
 
 # Current schema version

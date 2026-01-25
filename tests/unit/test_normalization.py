@@ -134,9 +134,7 @@ class TestRedaction:
 
     def test_custom_patterns(self):
         """Should support custom redaction patterns."""
-        redactor = Redactor(custom_patterns=[
-            (r"\bINTERNAL-\d+\b", "<TICKET>")
-        ])
+        redactor = Redactor(custom_patterns=[(r"\bINTERNAL-\d+\b", "<TICKET>")])
         text = "See ticket INTERNAL-12345"
         redacted = redactor.redact(text)
         assert "INTERNAL-12345" not in redacted

@@ -17,9 +17,7 @@ class CoverageMetric(BaseModel):
     """
 
     name: str = Field(..., description="Metric name (e.g., axi.awlen_bins)", min_length=1)
-    scope: str = Field(
-        ..., description="Scope (e.g., tb.env.axi_agent)", min_length=1
-    )
+    scope: str = Field(..., description="Scope (e.g., tb.env.axi_agent)", min_length=1)
     covered: float = Field(..., ge=0.0, le=100.0, description="Coverage percentage (0-100)")
     hits: int | None = Field(None, ge=0, description="Number of hits")
     total: int | None = Field(None, ge=0, description="Total possible hits")
@@ -57,9 +55,7 @@ class CoverageSummary(BaseModel):
     """
 
     run_id: str = Field(..., description="Run identifier")
-    test_id: str | None = Field(
-        None, description="Test identifier (None for aggregated coverage)"
-    )
+    test_id: str | None = Field(None, description="Test identifier (None for aggregated coverage)")
     kind: CoverageKind = Field(..., description="Coverage type")
     metrics: list[CoverageMetric] = Field(
         ..., max_length=200, description="Coverage metrics (bounded)"

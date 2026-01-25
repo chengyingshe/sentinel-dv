@@ -23,9 +23,7 @@ class CoverageParser:
     """
 
     # Coverage patterns (simplified)
-    COVERAGE_LINE_PATTERN = re.compile(
-        r'(\w+)\s+coverage:\s*([\d.]+)%'
-    , re.IGNORECASE)
+    COVERAGE_LINE_PATTERN = re.compile(r"(\w+)\s+coverage:\s*([\d.]+)%", re.IGNORECASE)
 
     def __init__(self):
         """Initialize coverage parser."""
@@ -41,7 +39,7 @@ class CoverageParser:
         Returns:
             CoverageSummary with metrics
         """
-        with open(report_path, encoding='utf-8', errors='replace') as f:
+        with open(report_path, encoding="utf-8", errors="replace") as f:
             content = f.read()
 
         metrics = []
@@ -57,7 +55,7 @@ class CoverageParser:
                 scope="module",
                 hit=int(percentage),
                 total=100,
-                percentage=percentage
+                percentage=percentage,
             )
             metrics.append(metric)
 
@@ -65,22 +63,12 @@ class CoverageParser:
         if not metrics:
             metrics.append(
                 CoverageMetric(
-                    kind="line",
-                    name="line",
-                    scope="module",
-                    hit=0,
-                    total=0,
-                    percentage=0.0
+                    kind="line", name="line", scope="module", hit=0, total=0, percentage=0.0
                 )
             )
 
         return CoverageSummary(
             kind="functional",
             metrics=metrics,
-            evidence=[
-                EvidenceRef(
-                    kind="coverage_report",
-                    path=str(report_path)
-                )
-            ]
+            evidence=[EvidenceRef(kind="coverage_report", path=str(report_path))],
         )

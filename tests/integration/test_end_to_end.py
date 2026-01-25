@@ -49,14 +49,11 @@ UVM_INFO @ 200 ns: (uvm_test_top) [TEST] Test completed
         with store:
             # Generate IDs
             run_id, run_id_full = generate_run_id(
-                suite="demo",
-                artifact_manifest=[(str(log_file), "abc123")]
+                suite="demo", artifact_manifest=[(str(log_file), "abc123")]
             )
 
             test_id, test_id_full = generate_test_id(
-                run_id_full=run_id_full,
-                framework="uvm",
-                test_name=result["test"].name
+                run_id_full=run_id_full, framework="uvm", test_name=result["test"].name
             )
 
             # Insert run
@@ -65,7 +62,7 @@ UVM_INFO @ 200 ns: (uvm_test_top) [TEST] Test completed
                 run_id_full=run_id_full,
                 suite="demo",
                 created_at="2026-01-25T10:00:00Z",
-                status="fail"
+                status="fail",
             )
 
             # Insert test
@@ -76,7 +73,7 @@ UVM_INFO @ 200 ns: (uvm_test_top) [TEST] Test completed
                 framework="uvm",
                 name=result["test"].name,
                 status="fail",
-                created_at="2026-01-25T10:00:00Z"
+                created_at="2026-01-25T10:00:00Z",
             )
 
             # Insert failure
@@ -85,7 +82,7 @@ UVM_INFO @ 200 ns: (uvm_test_top) [TEST] Test completed
                 test_id_full=test_id_full,
                 severity=failure.severity,
                 category=failure.category,
-                summary=failure.summary
+                summary=failure.summary,
             )
 
             store.insert_failure(
@@ -97,7 +94,7 @@ UVM_INFO @ 200 ns: (uvm_test_top) [TEST] Test completed
                 category=failure.category,
                 summary=failure.summary,
                 message=failure.message,
-                tags=failure.tags
+                tags=failure.tags,
             )
 
             # Query back
@@ -136,15 +133,11 @@ UVM_INFO @ 200 ns: (uvm_test_top) [TEST] Test completed
         """Test that ID generation is deterministic."""
         # Generate same run ID twice
         run_id_1, run_id_full_1 = generate_run_id(
-            suite="test_suite",
-            ci_system="github",
-            ci_build_id="12345"
+            suite="test_suite", ci_system="github", ci_build_id="12345"
         )
 
         run_id_2, run_id_full_2 = generate_run_id(
-            suite="test_suite",
-            ci_system="github",
-            ci_build_id="12345"
+            suite="test_suite", ci_system="github", ci_build_id="12345"
         )
 
         assert run_id_1 == run_id_2
@@ -152,17 +145,11 @@ UVM_INFO @ 200 ns: (uvm_test_top) [TEST] Test completed
 
         # Test ID should be deterministic
         test_id_1, test_id_full_1 = generate_test_id(
-            run_id_full=run_id_full_1,
-            framework="uvm",
-            test_name="my_test",
-            seed=42
+            run_id_full=run_id_full_1, framework="uvm", test_name="my_test", seed=42
         )
 
         test_id_2, test_id_full_2 = generate_test_id(
-            run_id_full=run_id_full_2,
-            framework="uvm",
-            test_name="my_test",
-            seed=42
+            run_id_full=run_id_full_2, framework="uvm", test_name="my_test", seed=42
         )
 
         assert test_id_1 == test_id_2
@@ -176,7 +163,7 @@ UVM_INFO @ 200 ns: (uvm_test_top) [TEST] Test completed
         result = classify_failure(
             message="DATA MISMATCH: Expected 0xDEAD, Got 0xBEEF",
             severity="UVM_ERROR",
-            framework="uvm"
+            framework="uvm",
         )
 
         assert result.category.value == "scoreboard"
@@ -184,8 +171,7 @@ UVM_INFO @ 200 ns: (uvm_test_top) [TEST] Test completed
 
         # Test assertion classification
         result = classify_failure(
-            message="ASSERTION FAILED: data_valid_check",
-            severity="UVM_ERROR"
+            message="ASSERTION FAILED: data_valid_check", severity="UVM_ERROR"
         )
 
         assert result.category.value == "assertion"
@@ -193,8 +179,7 @@ UVM_INFO @ 200 ns: (uvm_test_top) [TEST] Test completed
 
         # Test timeout classification
         result = classify_failure(
-            message="TIMEOUT: objection timeout in run phase",
-            severity="UVM_FATAL"
+            message="TIMEOUT: objection timeout in run phase", severity="UVM_FATAL"
         )
 
         assert result.category.value == "timeout"

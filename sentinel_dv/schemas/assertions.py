@@ -27,9 +27,7 @@ class AssertionInfo(BaseModel):
     id: str = Field(..., description="Stable assertion identifier", min_length=1)
     language: AssertionLanguage = Field(..., description="Assertion language")
     name: str = Field(..., description="Assertion name/label", min_length=1)
-    scope: str = Field(
-        ..., description="Scope (module/interface/class)", min_length=1
-    )
+    scope: str = Field(..., description="Scope (module/interface/class)", min_length=1)
     file: str = Field(..., description="Source file path", min_length=1)
     line: int = Field(..., ge=1, description="Line number in source file")
     intent: AssertionIntent | None = Field(None, description="Assertion intent metadata")

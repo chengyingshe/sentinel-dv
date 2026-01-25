@@ -94,7 +94,9 @@ class TestRunRef:
             run_id="R123",
             suite="nightly",
             created_at=now_utc(),
-            ci=CIInfo(system="jenkins", job_url="https://jenkins.example.com/job/123", build_id="123"),
+            ci=CIInfo(
+                system="jenkins", job_url="https://jenkins.example.com/job/123", build_id="123"
+            ),
         )
         assert ref.run_id == "R123"
         assert ref.suite == "nightly"

@@ -53,27 +53,25 @@ class CocotbParser:
         failures = []
 
         # Parse each testcase
-        for testcase in root.findall('.//testcase'):
-            name = testcase.get('name', 'unknown')
-            classname = testcase.get('classname', '')
-            time_sec = float(testcase.get('time', '0'))
+        for testcase in root.findall(".//testcase"):
+            name = testcase.get("name", "unknown")
+            classname = testcase.get("classname", "")
+            time_sec = float(testcase.get("time", "0"))
 
             # Check for failure/error elements
-            failure_elem = testcase.find('failure')
-            error_elem = testcase.find('error')
+            failure_elem = testcase.find("failure")
+            error_elem = testcase.find("error")
 
             if failure_elem is not None or error_elem is not None:
                 status = TestStatus.FAIL
                 elem = failure_elem if failure_elem is not None else error_elem
 
-                message = elem.get('message', '')
-                details = elem.text or ''
+                message = elem.get("message", "")
+                details = elem.text or ""
 
                 # Classify failure
                 taxonomy = classify_failure(
-                    message=message + '\n' + details,
-                    severity='error',
-                    framework='cocotb'
+                    message=message + "\n" + details, severity="error", framework="cocotb"
                 )
 
                 # Create failure event
@@ -87,9 +85,9 @@ class CocotbParser:
                         EvidenceRef(
                             kind="junit_xml",
                             path=str(xml_path),
-                            extract=truncate_text(details, 1000)
+                            extract=truncate_text(details, 1000),
                         )
-                    ]
+                    ],
                 )
                 failures.append(failure)
             else:
@@ -101,16 +99,8 @@ class CocotbParser:
                 status=status,
                 framework="cocotb",
                 duration=int(time_sec * 1000),  # Convert to ms
-                evidence=[
-                    EvidenceRef(
-                        kind="junit_xml",
-                        path=str(xml_path)
-                    )
-                ]
+                evidence=[EvidenceRef(kind="junit_xml", path=str(xml_path))],
             )
             tests.append(test)
 
-        return {
-            "tests": tests,
-            "failures": failures
-        }
+        return {"tests": tests, "failures": failures}

@@ -12,6 +12,7 @@ from enum import Enum
 
 class Severity(str, Enum):
     """Failure severity levels."""
+
     INFO = "info"
     WARNING = "warning"
     ERROR = "error"
@@ -20,6 +21,7 @@ class Severity(str, Enum):
 
 class Category(str, Enum):
     """Failure categories."""
+
     ASSERTION = "assertion"
     SCOREBOARD = "scoreboard"
     PROTOCOL = "protocol"
@@ -34,6 +36,7 @@ class Category(str, Enum):
 @dataclass
 class TaxonomyResult:
     """Result of taxonomy classification."""
+
     severity: Severity
     category: Category
     tags: list[str]
@@ -94,7 +97,7 @@ class TaxonomyEngine:
         return TaxonomyResult(
             severity=normalized_severity,
             category=category,
-            tags=tags[:self.MAX_TAGS],  # Enforce limit
+            tags=tags[: self.MAX_TAGS],  # Enforce limit
             taxonomy_reason=reason,
         )
 
@@ -116,24 +119,24 @@ class TaxonomyEngine:
         if not raw_severity:
             # Infer from message keywords
             message_lower = message.lower()
-            if any(kw in message_lower for kw in ['fatal', 'segfault', 'crash', 'abort']):
+            if any(kw in message_lower for kw in ["fatal", "segfault", "crash", "abort"]):
                 return Severity.FATAL
-            if any(kw in message_lower for kw in ['error', 'fail', 'exception']):
+            if any(kw in message_lower for kw in ["error", "fail", "exception"]):
                 return Severity.ERROR
-            if any(kw in message_lower for kw in ['warning', 'warn']):
+            if any(kw in message_lower for kw in ["warning", "warn"]):
                 return Severity.WARNING
             return Severity.INFO
 
         sev_lower = raw_severity.lower()
 
         # UVM severity mapping
-        if 'uvm_fatal' in sev_lower or 'fatal' in sev_lower:
+        if "uvm_fatal" in sev_lower or "fatal" in sev_lower:
             return Severity.FATAL
-        if 'uvm_error' in sev_lower or '*e' in sev_lower:  # *E for Xcelium
+        if "uvm_error" in sev_lower or "*e" in sev_lower:  # *E for Xcelium
             return Severity.ERROR
-        if 'uvm_warning' in sev_lower or '*w' in sev_lower:
+        if "uvm_warning" in sev_lower or "*w" in sev_lower:
             return Severity.WARNING
-        if 'uvm_info' in sev_lower:
+        if "uvm_info" in sev_lower:
             return Severity.INFO
 
         # Default to error for safety
@@ -164,24 +167,24 @@ class TaxonomyEngine:
 
         # Rule 1: Compile
         compile_patterns = [
-            r'compilation\s+failed',
-            r'error-[a-z0-9]+.*compile',
-            r'vlog-',
-            r'xmvlog',
-            r'syntax\s+error',
-            r'unexpected\s+token',
-            r'undefined\s+variable',
+            r"compilation\s+failed",
+            r"error-[a-z0-9]+.*compile",
+            r"vlog-",
+            r"xmvlog",
+            r"syntax\s+error",
+            r"unexpected\s+token",
+            r"undefined\s+variable",
         ]
         if any(re.search(p, msg_lower, re.IGNORECASE) for p in compile_patterns):
             return Category.COMPILE, "RULE_COMPILE", ["compile"]
 
         # Rule 2: Elaboration
         elab_patterns = [
-            r'elaboration\s+failed',
-            r'unresolved\s+reference',
-            r'cannot\s+find\s+instance',
-            r'binding\s+failed',
-            r'top\s+module\s+not\s+found',
+            r"elaboration\s+failed",
+            r"unresolved\s+reference",
+            r"cannot\s+find\s+instance",
+            r"binding\s+failed",
+            r"top\s+module\s+not\s+found",
         ]
         if any(re.search(p, msg_lower, re.IGNORECASE) for p in elab_patterns):
             return Category.ELAB, "RULE_ELAB", ["elab"]
@@ -190,11 +193,11 @@ class TaxonomyEngine:
 
         # Rule 3: Assertion failures
         assertion_patterns = [
-            r'assertion\s+failed',
-            r'sva.*failed',
-            r'assert\s+property.*fail',
-            r'\*\*\s+error:.*vsim-.*assertion',  # Questa
-            r'assertion\s+failure',  # VCS
+            r"assertion\s+failed",
+            r"sva.*failed",
+            r"assert\s+property.*fail",
+            r"\*\*\s+error:.*vsim-.*assertion",  # Questa
+            r"assertion\s+failure",  # VCS
         ]
         if any(re.search(p, msg_lower, re.IGNORECASE) for p in assertion_patterns):
             tags = ["assertion", "sva"]
@@ -208,12 +211,12 @@ class TaxonomyEngine:
 
         # Rule 4: Timeout
         timeout_patterns = [
-            r'timeout',
-            r'watchdog',
-            r'no\s+activity\s+for',
-            r'objection\s+timeout',
-            r'phase\s+timeout',
-            r'simulation\s+time\s+limit\s+reached',
+            r"timeout",
+            r"watchdog",
+            r"no\s+activity\s+for",
+            r"objection\s+timeout",
+            r"phase\s+timeout",
+            r"simulation\s+time\s+limit\s+reached",
         ]
         if any(re.search(p, msg_lower, re.IGNORECASE) for p in timeout_patterns):
             return Category.TIMEOUT, "RULE_TIMEOUT", ["timeout"]
@@ -222,11 +225,11 @@ class TaxonomyEngine:
 
         # Rule 5: Xprop / X-check
         xprop_patterns = [
-            r'x-propagation',
-            r'x-check',
-            r'unknown\s+value\s+x',
-            r'has\s+xs',
-            r'xrun:.*\*e.*\bx\b',
+            r"x-propagation",
+            r"x-check",
+            r"unknown\s+value\s+x",
+            r"has\s+xs",
+            r"xrun:.*\*e.*\bx\b",
         ]
         if any(re.search(p, msg_lower, re.IGNORECASE) for p in xprop_patterns):
             return Category.XPROP, "RULE_XPROP", ["xprop"]
@@ -235,10 +238,10 @@ class TaxonomyEngine:
 
         # Rule 6: Scoreboard mismatch
         scoreboard_patterns = [
-            r'scoreboard.*(mismatch|compare\s+failed|unexpected|expected)',
-            r'data\s+mismatch',
-            r'crc\s+mismatch',
-            r'sequence\s+item\s+mismatch',
+            r"scoreboard.*(mismatch|compare\s+failed|unexpected|expected)",
+            r"data\s+mismatch",
+            r"crc\s+mismatch",
+            r"sequence\s+item\s+mismatch",
         ]
         if any(re.search(p, msg_lower, re.IGNORECASE) for p in scoreboard_patterns):
             return Category.SCOREBOARD, "RULE_SCOREBOARD", ["scoreboard"]
@@ -247,13 +250,13 @@ class TaxonomyEngine:
 
         # Rule 7: Protocol
         protocol_patterns = [
-            r'protocol\s+violation',
-            r'handshake\s+violation',
-            r'illegal\s+transition',
-            r'unexpected\s+response',
-            r'bresp.*error',
-            r'rresp.*error',
-            r'pslverr',
+            r"protocol\s+violation",
+            r"handshake\s+violation",
+            r"illegal\s+transition",
+            r"unexpected\s+response",
+            r"bresp.*error",
+            r"rresp.*error",
+            r"pslverr",
         ]
         if any(re.search(p, msg_lower, re.IGNORECASE) for p in protocol_patterns):
             return Category.PROTOCOL, "RULE_PROTOCOL", ["protocol"]
@@ -262,14 +265,14 @@ class TaxonomyEngine:
 
         # Rule 8: Runtime
         runtime_patterns = [
-            r'segmentation\s+fault',
-            r'core\s+dumped',
-            r'simulator\s+terminated',
-            r'out\s+of\s+memory',
-            r'license\s+checkout\s+failed',
-            r'importerror',
-            r'runtimeerror',
-            r'simulatorerror',
+            r"segmentation\s+fault",
+            r"core\s+dumped",
+            r"simulator\s+terminated",
+            r"out\s+of\s+memory",
+            r"license\s+checkout\s+failed",
+            r"importerror",
+            r"runtimeerror",
+            r"simulatorerror",
         ]
         if any(re.search(p, msg_lower, re.IGNORECASE) for p in runtime_patterns):
             return Category.RUNTIME, "RULE_RUNTIME", ["runtime"]
@@ -349,36 +352,36 @@ class TaxonomyEngine:
         tags = []
 
         # AXI
-        if any(kw in msg_lower for kw in ['axi', 'awvalid', 'wready', 'bresp']):
-            tags.append('axi4')
+        if any(kw in msg_lower for kw in ["axi", "awvalid", "wready", "bresp"]):
+            tags.append("axi4")
 
         # APB
-        if any(kw in msg_lower for kw in ['paddr', 'psel', 'pready', 'pslverr']):
-            tags.append('apb')
+        if any(kw in msg_lower for kw in ["paddr", "psel", "pready", "pslverr"]):
+            tags.append("apb")
 
         # AHB
-        if any(kw in msg_lower for kw in ['haddr', 'hready', 'hresp']):
-            tags.append('ahb')
+        if any(kw in msg_lower for kw in ["haddr", "hready", "hresp"]):
+            tags.append("ahb")
 
         # PCIe
-        if any(kw in msg_lower for kw in ['ltssm', 'ts1', 'ts2', 'pcie']):
-            tags.append('pcie')
+        if any(kw in msg_lower for kw in ["ltssm", "ts1", "ts2", "pcie"]):
+            tags.append("pcie")
 
         # USB
-        if any(kw in msg_lower for kw in ['lfps', 'pipe', 'u0', 'u1', 'u2', 'usb']):
-            tags.append('usb')
+        if any(kw in msg_lower for kw in ["lfps", "pipe", "u0", "u1", "u2", "usb"]):
+            tags.append("usb")
 
         # JTAG
-        if any(kw in msg_lower for kw in ['tms', 'tck', 'tdo', 'tdi', 'jtag']):
-            tags.append('jtag')
+        if any(kw in msg_lower for kw in ["tms", "tck", "tdo", "tdi", "jtag"]):
+            tags.append("jtag")
 
         # I2C
-        if any(kw in msg_lower for kw in ['scl', 'sda', 'i2c']):
-            tags.append('i2c')
+        if any(kw in msg_lower for kw in ["scl", "sda", "i2c"]):
+            tags.append("i2c")
 
         # SPI
-        if any(kw in msg_lower for kw in ['mosi', 'miso', 'sclk', 'spi']):
-            tags.append('spi')
+        if any(kw in msg_lower for kw in ["mosi", "miso", "sclk", "spi"]):
+            tags.append("spi")
 
         return tags
 
@@ -395,16 +398,16 @@ class TaxonomyEngine:
         msg_lower = message.lower()
         tags = []
 
-        if any(kw in msg_lower for kw in ['vcs', 'vcsmx']):
-            tags.append('vcs')
-        elif any(kw in msg_lower for kw in ['questa', 'vsim', 'modelsim']):
-            tags.append('questa')
-        elif any(kw in msg_lower for kw in ['xcelium', 'xrun', 'xmvlog']):
-            tags.append('xcelium')
-        elif 'verilator' in msg_lower:
-            tags.append('verilator')
-        elif 'riviera' in msg_lower:
-            tags.append('riviera')
+        if any(kw in msg_lower for kw in ["vcs", "vcsmx"]):
+            tags.append("vcs")
+        elif any(kw in msg_lower for kw in ["questa", "vsim", "modelsim"]):
+            tags.append("questa")
+        elif any(kw in msg_lower for kw in ["xcelium", "xrun", "xmvlog"]):
+            tags.append("xcelium")
+        elif "verilator" in msg_lower:
+            tags.append("verilator")
+        elif "riviera" in msg_lower:
+            tags.append("riviera")
 
         return tags
 
@@ -421,14 +424,14 @@ class TaxonomyEngine:
         comp_lower = component.lower()
         tags = []
 
-        if 'driver' in comp_lower or 'drv' in comp_lower:
-            tags.append('driver')
-        if 'monitor' in comp_lower or 'mon' in comp_lower:
-            tags.append('monitor')
-        if 'scoreboard' in comp_lower or 'scb' in comp_lower:
-            tags.append('scoreboard')
-        if 'sequencer' in comp_lower or 'sqr' in comp_lower:
-            tags.append('sequencer')
+        if "driver" in comp_lower or "drv" in comp_lower:
+            tags.append("driver")
+        if "monitor" in comp_lower or "mon" in comp_lower:
+            tags.append("monitor")
+        if "scoreboard" in comp_lower or "scb" in comp_lower:
+            tags.append("scoreboard")
+        if "sequencer" in comp_lower or "sqr" in comp_lower:
+            tags.append("sequencer")
 
         return tags
 

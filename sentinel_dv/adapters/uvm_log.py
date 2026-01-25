@@ -29,6 +29,7 @@ from sentinel_dv.utils.bounded_text import extract_excerpt, truncate_text
 @dataclass
 class UVMMessage:
     """Parsed UVM message."""
+
     severity: str  # UVM_INFO, UVM_WARNING, UVM_ERROR, UVM_FATAL
     component: str
     message: str
@@ -50,66 +51,55 @@ class UVMLogParser:
     # UVM message pattern (generic)
     # Format: UVM_[SEVERITY] @ [TIME]: [COMPONENT] [FILE]([LINE]) [MESSAGE]
     UVM_MSG_PATTERN = re.compile(
-        r'(UVM_(?:INFO|WARNING|ERROR|FATAL))'  # Severity
-        r'(?:\s+@\s*(\d+(?:\.\d+)?)\s*([a-z]+))?'  # Optional: @ time units
-        r'(?::\s*)?'
-        r'(?:\(([^)]+)\))?'  # Optional: (component)
-        r'(?:\s+([^:]+):(\d+))?'  # Optional: file:line
-        r'(?:\s+@\s*(\d+))?'  # Optional: @ time (alternative format)
-        r'(?::|\s+)'
-        r'(.+?)$',  # Message
-        re.MULTILINE | re.IGNORECASE
+        r"(UVM_(?:INFO|WARNING|ERROR|FATAL))"  # Severity
+        r"(?:\s+@\s*(\d+(?:\.\d+)?)\s*([a-z]+))?"  # Optional: @ time units
+        r"(?::\s*)?"
+        r"(?:\(([^)]+)\))?"  # Optional: (component)
+        r"(?:\s+([^:]+):(\d+))?"  # Optional: file:line
+        r"(?:\s+@\s*(\d+))?"  # Optional: @ time (alternative format)
+        r"(?::|\s+)"
+        r"(.+?)$",  # Message
+        re.MULTILINE | re.IGNORECASE,
     )
 
     # Questa/VCS specific patterns
     QUESTA_PATTERN = re.compile(
-        r'#\s*(UVM_(?:INFO|WARNING|ERROR|FATAL))\s+'
-        r'(?:@\s*(\d+)\s*([a-z]+)\s*)?'
-        r'(?:\[([^\]]+)\]\s*)?'  # Reporter ID
-        r'(?:\(([^)]+)\):\s*)?'  # Component
-        r'(.+?)$',
-        re.MULTILINE | re.IGNORECASE
+        r"#\s*(UVM_(?:INFO|WARNING|ERROR|FATAL))\s+"
+        r"(?:@\s*(\d+)\s*([a-z]+)\s*)?"
+        r"(?:\[([^\]]+)\]\s*)?"  # Reporter ID
+        r"(?:\(([^)]+)\):\s*)?"  # Component
+        r"(.+?)$",
+        re.MULTILINE | re.IGNORECASE,
     )
 
     # VCS specific patterns
     VCS_PATTERN = re.compile(
-        r'(UVM_(?:INFO|WARNING|ERROR|FATAL))\s+'
-        r'(?:@\s*(\d+)\s*([a-z]+)\s*)?'
-        r'(?:\[([^\]]+)\]\s*)?'  # Reporter ID
-        r'([^:]+\.sv[h]?):\((\d+)\)\s+'
-        r'(?:@\s*(\d+)\s*)?'
-        r'(.+?)$',
-        re.MULTILINE
+        r"(UVM_(?:INFO|WARNING|ERROR|FATAL))\s+"
+        r"(?:@\s*(\d+)\s*([a-z]+)\s*)?"
+        r"(?:\[([^\]]+)\]\s*)?"  # Reporter ID
+        r"([^:]+\.sv[h]?):\((\d+)\)\s+"
+        r"(?:@\s*(\d+)\s*)?"
+        r"(.+?)$",
+        re.MULTILINE,
     )
 
     # Phase detection
-    PHASE_PATTERN = re.compile(
-        r'(?:UVM_INFO.*)?(?:phase|Phase)\s+["\']?(\w+)["\']?',
-        re.IGNORECASE
-    )
+    PHASE_PATTERN = re.compile(r'(?:UVM_INFO.*)?(?:phase|Phase)\s+["\']?(\w+)["\']?', re.IGNORECASE)
 
     # Test name extraction
     TEST_NAME_PATTERN = re.compile(
-        r'(?:TEST|test_name|Running test|Starting test)[\s:]+["\']?(\w+)["\']?',
-        re.IGNORECASE
+        r'(?:TEST|test_name|Running test|Starting test)[\s:]+["\']?(\w+)["\']?', re.IGNORECASE
     )
 
     # Test status patterns
     TEST_PASSED_PATTERN = re.compile(
-        r'(?:TEST\s+PASSED|test\s+passed|PASS|All\s+tests\s+passed)',
-        re.IGNORECASE
+        r"(?:TEST\s+PASSED|test\s+passed|PASS|All\s+tests\s+passed)", re.IGNORECASE
     )
 
-    TEST_FAILED_PATTERN = re.compile(
-        r'(?:TEST\s+FAILED|test\s+failed|FAIL)',
-        re.IGNORECASE
-    )
+    TEST_FAILED_PATTERN = re.compile(r"(?:TEST\s+FAILED|test\s+failed|FAIL)", re.IGNORECASE)
 
     # Topology extraction
-    COMPONENT_PATTERN = re.compile(
-        r'(?:uvm_test_top|uvm_top)\.(\S+)',
-        re.IGNORECASE
-    )
+    COMPONENT_PATTERN = re.compile(r"(?:uvm_test_top|uvm_top)\.(\S+)", re.IGNORECASE)
 
     def __init__(self, redactor: Redactor | None = None):
         """
@@ -139,7 +129,7 @@ class UVMLogParser:
             raise FileNotFoundError(f"Log file not found: {log_path}")
 
         # Read log file
-        with open(log_path, encoding='utf-8', errors='replace') as f:
+        with open(log_path, encoding="utf-8", errors="replace") as f:
             content = f.read()
 
         # Parse messages
@@ -164,14 +154,8 @@ class UVMLogParser:
                 framework="uvm",
                 duration=None,  # Would need timing info from log
                 seed=None,  # Would need seed info from command line or log
-                evidence=[
-                    EvidenceRef(
-                        kind="log",
-                        path=str(log_path),
-                        extract=None
-                    )
-                ],
-                topology=topology
+                evidence=[EvidenceRef(kind="log", path=str(log_path), extract=None)],
+                topology=topology,
             )
 
         return {
@@ -190,7 +174,7 @@ class UVMLogParser:
         Yields:
             UVMMessage instances
         """
-        lines = content.split('\n')
+        lines = content.split("\n")
 
         for line_num, line in enumerate(lines, start=1):
             # Try generic pattern
@@ -211,7 +195,7 @@ class UVMLogParser:
                     message=message,
                     time_ns=time_ns,
                     phase=phase,
-                    line_number=line_num
+                    line_number=line_num,
                 )
                 continue
 
@@ -233,7 +217,7 @@ class UVMLogParser:
                     message=message,
                     time_ns=time_ns,
                     phase=phase,
-                    line_number=line_num
+                    line_number=line_num,
                 )
                 continue
 
@@ -255,7 +239,7 @@ class UVMLogParser:
                     message=message,
                     time_ns=time_ns,
                     phase=phase,
-                    line_number=line_num
+                    line_number=line_num,
                 )
 
     def _parse_time(self, time_str: str, unit: str | None) -> int | None:
@@ -279,17 +263,17 @@ class UVMLogParser:
             return int(time_val)  # Assume ns if no unit
 
         unit_lower = unit.lower()
-        if unit_lower == 'fs':
+        if unit_lower == "fs":
             return int(time_val / 1_000_000)
-        elif unit_lower == 'ps':
+        elif unit_lower == "ps":
             return int(time_val / 1_000)
-        elif unit_lower == 'ns':
+        elif unit_lower == "ns":
             return int(time_val)
-        elif unit_lower in ('us', 'μs'):
+        elif unit_lower in ("us", "μs"):
             return int(time_val * 1_000)
-        elif unit_lower == 'ms':
+        elif unit_lower == "ms":
             return int(time_val * 1_000_000)
-        elif unit_lower == 's':
+        elif unit_lower == "s":
             return int(time_val * 1_000_000_000)
         else:
             return int(time_val)  # Default to ns
@@ -323,23 +307,19 @@ class UVMLogParser:
             return TestStatus.FAIL
 
         # Check for UVM_FATAL (always fail)
-        has_fatal = any(msg.severity == 'UVM_FATAL' for msg in messages)
+        has_fatal = any(msg.severity == "UVM_FATAL" for msg in messages)
         if has_fatal:
             return TestStatus.FAIL
 
         # Check for UVM_ERROR (usually fail)
-        has_error = any(msg.severity == 'UVM_ERROR' for msg in messages)
+        has_error = any(msg.severity == "UVM_ERROR" for msg in messages)
         if has_error:
             return TestStatus.FAIL
 
         # Default to pass if no errors
         return TestStatus.PASS
 
-    def _extract_failures(
-        self,
-        messages: list[UVMMessage],
-        log_path: Path
-    ) -> list[FailureEvent]:
+    def _extract_failures(self, messages: list[UVMMessage], log_path: Path) -> list[FailureEvent]:
         """
         Extract failure events from UVM messages.
 
@@ -354,7 +334,7 @@ class UVMLogParser:
 
         for msg in messages:
             # Only extract ERROR and FATAL messages
-            if msg.severity not in ('UVM_ERROR', 'UVM_FATAL'):
+            if msg.severity not in ("UVM_ERROR", "UVM_FATAL"):
                 continue
 
             # Classify using taxonomy engine
@@ -363,7 +343,7 @@ class UVMLogParser:
                 severity=msg.severity,
                 component=msg.component,
                 phase=msg.phase,
-                framework="uvm"
+                framework="uvm",
             )
 
             # Apply redaction
@@ -377,7 +357,7 @@ class UVMLogParser:
                     path=str(log_path),
                     start_line=msg.line_number,
                     end_line=msg.line_number,
-                    extract=extract_excerpt(msg.message, 500)
+                    extract=extract_excerpt(msg.message, 500),
                 )
             ]
 
@@ -391,7 +371,7 @@ class UVMLogParser:
                 phase=msg.phase,
                 time=TimeSpan(ns=msg.time_ns) if msg.time_ns else None,
                 tags=taxonomy.tags,
-                evidence=evidence
+                evidence=evidence,
             )
 
             failures.append(failure)
@@ -421,15 +401,11 @@ class UVMLogParser:
         # Build simplified UVM topology
         uvm_top = UvmTopology(
             test_name="unknown",
-            env_name="env" if any('env' in c for c in components) else None,
+            env_name="env" if any("env" in c for c in components) else None,
             agents=[],  # Would need more sophisticated parsing
             scoreboards=[],
             monitors=[],
-            interfaces=[]
+            interfaces=[],
         )
 
-        return TestTopology(
-            framework="uvm",
-            dut_top=None,
-            uvm=uvm_top
-        )
+        return TestTopology(framework="uvm", dut_top=None, uvm=uvm_top)

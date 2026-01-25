@@ -69,13 +69,15 @@ def normalize_failure_summary(raw_message: str, max_length: int = 256) -> str:
     summary = re.sub(r"0x[0-9a-fA-F]+", "0xADDR", summary)
 
     # Remove transaction/sequence IDs
-    summary = re.sub(r"\b(id|seq|trans|transaction)[:=]?\s*\d+", r"\1=N", summary, flags=re.IGNORECASE)
+    summary = re.sub(
+        r"\b(id|seq|trans|transaction)[:=]?\s*\d+", r"\1=N", summary, flags=re.IGNORECASE
+    )
 
     # Normalize multiple spaces
     summary = " ".join(summary.split())
 
     # Truncate if needed
     if len(summary) > max_length:
-        summary = summary[:max_length - 3] + "..."
+        summary = summary[: max_length - 3] + "..."
 
     return summary
