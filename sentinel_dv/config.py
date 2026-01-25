@@ -2,7 +2,7 @@
 
 import os
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 import yaml
 from pydantic import BaseModel, Field, field_validator
@@ -145,7 +145,7 @@ class SentinelDVConfig(BaseModel):
 
 
 # Global configuration instance
-_config: Optional[SentinelDVConfig] = None
+_config: SentinelDVConfig | None = None
 
 
 def get_config() -> SentinelDVConfig:

@@ -1,13 +1,12 @@
 """Regression and diff schemas for Sentinel DV."""
 
 from datetime import datetime
-from typing import Any, Literal, Optional
+from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 
 from sentinel_dv.schemas.common import EvidenceRef, RunRef
 from sentinel_dv.schemas.failures import FailureSignature
-
 
 # Diff item kinds
 DiffKind = Literal[

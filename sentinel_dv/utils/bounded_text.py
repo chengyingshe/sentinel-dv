@@ -3,7 +3,6 @@
 Ensures text fields don't exceed size limits and are properly truncated.
 """
 
-from typing import Optional
 
 
 def truncate_text(
@@ -54,8 +53,8 @@ def truncate_text(
 
 def extract_excerpt(
     text: str,
-    start_line: Optional[int] = None,
-    end_line: Optional[int] = None,
+    start_line: int | None = None,
+    end_line: int | None = None,
     max_length: int = 1024,
     context_lines: int = 0,
 ) -> str:

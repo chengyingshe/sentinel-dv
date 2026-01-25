@@ -4,7 +4,6 @@ Removes sensitive information from logs and messages before exposure.
 """
 
 import re
-from typing import Optional
 
 
 class Redactor:
@@ -48,7 +47,7 @@ class Redactor:
 
     def __init__(
         self,
-        custom_patterns: Optional[list[tuple[str, str]]] = None,
+        custom_patterns: list[tuple[str, str]] | None = None,
         redact_emails: bool = True,
         redact_ips: bool = False,
         redact_paths: bool = True,
@@ -112,7 +111,7 @@ class Redactor:
 
 
 # Global default redactor instance
-_default_redactor: Optional[Redactor] = None
+_default_redactor: Redactor | None = None
 
 
 def get_default_redactor() -> Redactor:

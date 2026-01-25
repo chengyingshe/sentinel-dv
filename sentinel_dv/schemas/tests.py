@@ -1,11 +1,10 @@
 """Test-related schemas for Sentinel DV."""
 
-from typing import Literal, Optional
+from typing import Literal
 
 from pydantic import BaseModel, Field
 
 from sentinel_dv.schemas.common import EvidenceRef, RunRef
-
 
 # Framework types
 Framework = Literal["uvm", "cocotb", "sv_unit", "unknown"]
@@ -40,14 +39,14 @@ class SimulatorInfo(BaseModel):
     """Simulator information."""
 
     vendor: str = Field(..., description="Simulator vendor (VCS, Xcelium, Questa, etc.)")
-    version: Optional[str] = Field(None, description="Simulator version")
+    version: str | None = Field(None, description="Simulator version")
 
 
 class DutInfo(BaseModel):
     """Design Under Test information."""
 
     top: str = Field(..., description="Top-level module name")
-    config: Optional[dict[str, str]] = Field(None, description="DUT configuration parameters")
+    config: dict[str, str] | None = Field(None, description="DUT configuration parameters")
 
 
 class TestCase(BaseModel):
@@ -56,11 +55,11 @@ class TestCase(BaseModel):
     id: str = Field(..., description="Stable test identifier", min_length=1)
     framework: Framework = Field(..., description="Verification framework used")
     name: str = Field(..., description="Test name", min_length=1)
-    seed: Optional[int] = Field(None, description="Random seed used")
-    simulator: Optional[SimulatorInfo] = Field(None, description="Simulator information")
-    dut: Optional[DutInfo] = Field(None, description="DUT information")
+    seed: int | None = Field(None, description="Random seed used")
+    simulator: SimulatorInfo | None = Field(None, description="Simulator information")
+    dut: DutInfo | None = Field(None, description="DUT information")
     status: TestStatus = Field(..., description="Test result status")
-    duration_ms: Optional[int] = Field(None, ge=0, description="Test duration in milliseconds")
+    duration_ms: int | None = Field(None, ge=0, description="Test duration in milliseconds")
     run: RunRef = Field(..., description="Run this test belongs to")
     evidence: list[EvidenceRef] = Field(
         default_factory=list, description="Evidence for test result"
@@ -122,15 +121,15 @@ class UvmTopology(BaseModel):
 class SignalInfo(BaseModel):
     """Signal information for interface binding."""
 
-    clk: Optional[str] = Field(None, description="Clock signal name")
-    rst: Optional[str] = Field(None, description="Reset signal name")
+    clk: str | None = Field(None, description="Clock signal name")
+    rst: str | None = Field(None, description="Reset signal name")
 
 
 class EndpointInfo(BaseModel):
     """Endpoint information for interface binding."""
 
-    driver: Optional[str] = Field(None, description="Driver component path or object name")
-    monitor: Optional[str] = Field(None, description="Monitor component path or object name")
+    driver: str | None = Field(None, description="Driver component path or object name")
+    monitor: str | None = Field(None, description="Monitor component path or object name")
 
 
 class InterfaceBinding(BaseModel):
@@ -142,15 +141,15 @@ class InterfaceBinding(BaseModel):
     name: str = Field(..., description="Interface instance name (e.g., axi_m0, apb_s0)")
     protocol: Protocol = Field(..., description="Interface protocol type")
     direction: Direction = Field(..., description="Interface direction")
-    signals: Optional[SignalInfo] = Field(None, description="Key signal names")
-    endpoints: Optional[EndpointInfo] = Field(None, description="Connected components")
+    signals: SignalInfo | None = Field(None, description="Key signal names")
+    endpoints: EndpointInfo | None = Field(None, description="Connected components")
 
 
 class TestTopology(BaseModel):
     """Complete test topology combining framework-specific and unified views."""
 
     test_id: str = Field(..., description="Test identifier this topology belongs to")
-    uvm: Optional[UvmTopology] = Field(None, description="UVM-specific topology (if applicable)")
+    uvm: UvmTopology | None = Field(None, description="UVM-specific topology (if applicable)")
     interfaces: list[InterfaceBinding] = Field(
         default_factory=list, description="Unified interface bindings"
     )

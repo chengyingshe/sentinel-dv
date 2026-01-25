@@ -108,11 +108,11 @@ class TestSentinelDVConfig:
                 "index": {"type": "duckdb", "path": "./test.db"},
                 "security": {"max_page_size": 100},
             }
-            
+
             config_file = Path(tmpdir) / "config.yaml"
             with open(config_file, "w") as f:
                 yaml.safe_dump(config_data, f)
-            
+
             config = SentinelDVConfig.from_yaml(str(config_file))
             assert len(config.artifact_roots) == 1
             assert config.security.max_page_size == 100
@@ -121,12 +121,12 @@ class TestSentinelDVConfig:
         """Config should save to YAML file."""
         with tempfile.TemporaryDirectory() as tmpdir:
             config = SentinelDVConfig(artifact_roots=[tmpdir])
-            
+
             config_file = Path(tmpdir) / "output.yaml"
             config.to_yaml(str(config_file))
-            
+
             assert config_file.exists()
-            
+
             # Verify round-trip
             loaded = SentinelDVConfig.from_yaml(str(config_file))
             assert loaded.artifact_roots == config.artifact_roots

@@ -8,7 +8,6 @@ Rules are applied in order with first-match-wins semantics.
 import re
 from dataclasses import dataclass
 from enum import Enum
-from typing import Optional
 
 
 class Severity(str, Enum):
@@ -38,50 +37,50 @@ class TaxonomyResult:
     severity: Severity
     category: Category
     tags: list[str]
-    taxonomy_reason: Optional[str] = None  # Internal debugging field
+    taxonomy_reason: str | None = None  # Internal debugging field
 
 
 class TaxonomyEngine:
     """
     Rule-based failure classification engine.
-    
+
     Applies ordered rules to classify failures into categories and assign tags.
     """
-    
+
     # Maximum tags per failure
     MAX_TAGS = 20
-    
+
     def __init__(self):
         """Initialize taxonomy engine with default rules."""
         pass
-    
+
     def classify(
         self,
         message: str,
-        severity: Optional[str] = None,
-        component: Optional[str] = None,
-        phase: Optional[str] = None,
-        framework: Optional[str] = None,
+        severity: str | None = None,
+        component: str | None = None,
+        phase: str | None = None,
+        framework: str | None = None,
     ) -> TaxonomyResult:
         """
         Classify a failure message.
-        
+
         Args:
             message: Failure message text
             severity: Raw severity string (UVM_ERROR, etc.)
             component: Component name
             phase: Test phase
             framework: Framework name (uvm, cocotb)
-            
+
         Returns:
             TaxonomyResult with category, severity, and tags
         """
         # Normalize severity
         normalized_severity = self._normalize_severity(severity, message)
-        
+
         # Apply category rules (ordered, first match wins)
         category, reason, category_tags = self._categorize(message, framework)
-        
+
         # Build tag set
         tags = self._build_tags(
             category,
@@ -91,26 +90,26 @@ class TaxonomyEngine:
             phase,
             framework,
         )
-        
+
         return TaxonomyResult(
             severity=normalized_severity,
             category=category,
             tags=tags[:self.MAX_TAGS],  # Enforce limit
             taxonomy_reason=reason,
         )
-    
+
     # ========================================================================
     # Severity normalization
     # ========================================================================
-    
-    def _normalize_severity(self, raw_severity: Optional[str], message: str) -> Severity:
+
+    def _normalize_severity(self, raw_severity: str | None, message: str) -> Severity:
         """
         Normalize severity from various formats.
-        
+
         Args:
             raw_severity: Raw severity string
             message: Message text (for context)
-            
+
         Returns:
             Normalized Severity enum
         """
@@ -124,9 +123,9 @@ class TaxonomyEngine:
             if any(kw in message_lower for kw in ['warning', 'warn']):
                 return Severity.WARNING
             return Severity.INFO
-        
+
         sev_lower = raw_severity.lower()
-        
+
         # UVM severity mapping
         if 'uvm_fatal' in sev_lower or 'fatal' in sev_lower:
             return Severity.FATAL
@@ -136,33 +135,33 @@ class TaxonomyEngine:
             return Severity.WARNING
         if 'uvm_info' in sev_lower:
             return Severity.INFO
-        
+
         # Default to error for safety
         return Severity.ERROR
-    
+
     # ========================================================================
     # Category rules (ordered)
     # ========================================================================
-    
+
     def _categorize(
         self,
         message: str,
-        framework: Optional[str] = None,
+        framework: str | None = None,
     ) -> tuple[Category, str, list[str]]:
         """
         Apply category rules in order.
-        
+
         Args:
             message: Failure message
             framework: Framework name
-            
+
         Returns:
             Tuple of (Category, reason_code, initial_tags)
         """
         msg_lower = message.lower()
-        
+
         # Rule Group A: Compile / Elaboration (highest priority)
-        
+
         # Rule 1: Compile
         compile_patterns = [
             r'compilation\s+failed',
@@ -175,7 +174,7 @@ class TaxonomyEngine:
         ]
         if any(re.search(p, msg_lower, re.IGNORECASE) for p in compile_patterns):
             return Category.COMPILE, "RULE_COMPILE", ["compile"]
-        
+
         # Rule 2: Elaboration
         elab_patterns = [
             r'elaboration\s+failed',
@@ -186,9 +185,9 @@ class TaxonomyEngine:
         ]
         if any(re.search(p, msg_lower, re.IGNORECASE) for p in elab_patterns):
             return Category.ELAB, "RULE_ELAB", ["elab"]
-        
+
         # Rule Group B: Assertions
-        
+
         # Rule 3: Assertion failures
         assertion_patterns = [
             r'assertion\s+failed',
@@ -204,9 +203,9 @@ class TaxonomyEngine:
             if name_match:
                 tags.append(f"assert:{name_match.group(1)}")
             return Category.ASSERTION, "RULE_ASSERTION", tags
-        
+
         # Rule Group C: Timeouts / Deadlocks
-        
+
         # Rule 4: Timeout
         timeout_patterns = [
             r'timeout',
@@ -218,9 +217,9 @@ class TaxonomyEngine:
         ]
         if any(re.search(p, msg_lower, re.IGNORECASE) for p in timeout_patterns):
             return Category.TIMEOUT, "RULE_TIMEOUT", ["timeout"]
-        
+
         # Rule Group D: X-Propagation
-        
+
         # Rule 5: Xprop / X-check
         xprop_patterns = [
             r'x-propagation',
@@ -231,9 +230,9 @@ class TaxonomyEngine:
         ]
         if any(re.search(p, msg_lower, re.IGNORECASE) for p in xprop_patterns):
             return Category.XPROP, "RULE_XPROP", ["xprop"]
-        
+
         # Rule Group E: Scoreboard / Data Mismatches
-        
+
         # Rule 6: Scoreboard mismatch
         scoreboard_patterns = [
             r'scoreboard.*(mismatch|compare\s+failed|unexpected|expected)',
@@ -243,9 +242,9 @@ class TaxonomyEngine:
         ]
         if any(re.search(p, msg_lower, re.IGNORECASE) for p in scoreboard_patterns):
             return Category.SCOREBOARD, "RULE_SCOREBOARD", ["scoreboard"]
-        
+
         # Rule Group F: Protocol Violations
-        
+
         # Rule 7: Protocol
         protocol_patterns = [
             r'protocol\s+violation',
@@ -258,9 +257,9 @@ class TaxonomyEngine:
         ]
         if any(re.search(p, msg_lower, re.IGNORECASE) for p in protocol_patterns):
             return Category.PROTOCOL, "RULE_PROTOCOL", ["protocol"]
-        
+
         # Rule Group G: Runtime/Infrastructure
-        
+
         # Rule 8: Runtime
         runtime_patterns = [
             r'segmentation\s+fault',
@@ -274,28 +273,28 @@ class TaxonomyEngine:
         ]
         if any(re.search(p, msg_lower, re.IGNORECASE) for p in runtime_patterns):
             return Category.RUNTIME, "RULE_RUNTIME", ["runtime"]
-        
+
         # Default: Unknown
         return Category.UNKNOWN, "RULE_DEFAULT", []
-    
+
     # ========================================================================
     # Tag building
     # ========================================================================
-    
+
     def _build_tags(
         self,
         category: Category,
         category_tags: list[str],
         message: str,
-        component: Optional[str],
-        phase: Optional[str],
-        framework: Optional[str],
+        component: str | None,
+        phase: str | None,
+        framework: str | None,
     ) -> list[str]:
         """
         Build comprehensive tag set.
-        
+
         Tags are ordered: category/framework/protocol/vendor/phase/component_role/other
-        
+
         Args:
             category: Classified category
             category_tags: Tags from category rule
@@ -303,99 +302,99 @@ class TaxonomyEngine:
             component: Component name
             phase: Test phase
             framework: Framework name
-            
+
         Returns:
             Ordered list of tags
         """
         tags = list(category_tags)  # Start with category tags
-        
+
         # Add framework tag
         if framework:
             framework_tag = framework.lower()
             if framework_tag not in tags:
                 tags.append(framework_tag)
-        
+
         # Add protocol tags
         protocol_tags = self._detect_protocol(message)
         tags.extend([t for t in protocol_tags if t not in tags])
-        
+
         # Add vendor tags (from message)
         vendor_tags = self._detect_vendor(message)
         tags.extend([t for t in vendor_tags if t not in tags])
-        
+
         # Add phase tags
         if phase:
             phase_tag = f"phase:{phase.lower()}"
             if phase_tag not in tags:
                 tags.append(phase_tag)
-        
+
         # Add component role tags
         if component:
             role_tags = self._detect_component_role(component)
             tags.extend([t for t in role_tags if t not in tags])
-        
+
         return tags
-    
+
     def _detect_protocol(self, message: str) -> list[str]:
         """
         Detect protocol from message content.
-        
+
         Args:
             message: Message text
-            
+
         Returns:
             List of protocol tags
         """
         msg_lower = message.lower()
         tags = []
-        
+
         # AXI
         if any(kw in msg_lower for kw in ['axi', 'awvalid', 'wready', 'bresp']):
             tags.append('axi4')
-        
+
         # APB
         if any(kw in msg_lower for kw in ['paddr', 'psel', 'pready', 'pslverr']):
             tags.append('apb')
-        
+
         # AHB
         if any(kw in msg_lower for kw in ['haddr', 'hready', 'hresp']):
             tags.append('ahb')
-        
+
         # PCIe
         if any(kw in msg_lower for kw in ['ltssm', 'ts1', 'ts2', 'pcie']):
             tags.append('pcie')
-        
+
         # USB
         if any(kw in msg_lower for kw in ['lfps', 'pipe', 'u0', 'u1', 'u2', 'usb']):
             tags.append('usb')
-        
+
         # JTAG
         if any(kw in msg_lower for kw in ['tms', 'tck', 'tdo', 'tdi', 'jtag']):
             tags.append('jtag')
-        
+
         # I2C
         if any(kw in msg_lower for kw in ['scl', 'sda', 'i2c']):
             tags.append('i2c')
-        
+
         # SPI
         if any(kw in msg_lower for kw in ['mosi', 'miso', 'sclk', 'spi']):
             tags.append('spi')
-        
+
         return tags
-    
+
     def _detect_vendor(self, message: str) -> list[str]:
         """
         Detect simulator vendor from message.
-        
+
         Args:
             message: Message text
-            
+
         Returns:
             List of vendor tags
         """
         msg_lower = message.lower()
         tags = []
-        
+
         if any(kw in msg_lower for kw in ['vcs', 'vcsmx']):
             tags.append('vcs')
         elif any(kw in msg_lower for kw in ['questa', 'vsim', 'modelsim']):
@@ -406,22 +405,22 @@ class TaxonomyEngine:
             tags.append('verilator')
         elif 'riviera' in msg_lower:
             tags.append('riviera')
-        
+
         return tags
-    
+
     def _detect_component_role(self, component: str) -> list[str]:
         """
         Detect component role from component name.
-        
+
         Args:
             component: Component name
-            
+
         Returns:
             List of role tags
         """
         comp_lower = component.lower()
         tags = []
-        
+
         if 'driver' in comp_lower or 'drv' in comp_lower:
             tags.append('driver')
         if 'monitor' in comp_lower or 'mon' in comp_lower:
@@ -430,7 +429,7 @@ class TaxonomyEngine:
             tags.append('scoreboard')
         if 'sequencer' in comp_lower or 'sqr' in comp_lower:
             tags.append('sequencer')
-        
+
         return tags
 
 
@@ -440,21 +439,21 @@ _taxonomy_engine = TaxonomyEngine()
 
 def classify_failure(
     message: str,
-    severity: Optional[str] = None,
-    component: Optional[str] = None,
-    phase: Optional[str] = None,
-    framework: Optional[str] = None,
+    severity: str | None = None,
+    component: str | None = None,
+    phase: str | None = None,
+    framework: str | None = None,
 ) -> TaxonomyResult:
     """
     Classify a failure message using the default taxonomy engine.
-    
+
     Args:
         message: Failure message text
         severity: Raw severity string
         component: Component name
         phase: Test phase
         framework: Framework name
-        
+
     Returns:
         TaxonomyResult with category, severity, and tags
     """

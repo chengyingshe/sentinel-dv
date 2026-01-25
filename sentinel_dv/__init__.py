@@ -8,11 +8,11 @@ __version__ = "1.0.0"
 __author__ = "Sentinel DV Team"
 __license__ = "Apache-2.0"
 
+from sentinel_dv.schemas.assertions import AssertionFailure, AssertionInfo
 from sentinel_dv.schemas.common import EvidenceRef, RunRef
-from sentinel_dv.schemas.tests import TestCase, TestTopology
+from sentinel_dv.schemas.coverage import CoverageMetric, CoverageSummary
 from sentinel_dv.schemas.failures import FailureEvent, FailureSignature
-from sentinel_dv.schemas.assertions import AssertionInfo, AssertionFailure
-from sentinel_dv.schemas.coverage import CoverageSummary, CoverageMetric
+from sentinel_dv.schemas.tests import TestCase, TestTopology
 
 __all__ = [
     "__version__",

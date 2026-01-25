@@ -4,57 +4,55 @@ Sentinel DV MCP Server.
 This module implements the FastMCP server with all verification intelligence tools.
 """
 
-import sys
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 from fastmcp import FastMCP
 from pydantic import Field
 
-from sentinel_dv.config import load_config, SentinelDVConfig
+from sentinel_dv.config import SentinelDVConfig, load_config
 from sentinel_dv.indexing.store import IndexStore
 from sentinel_dv.tools.core import (
-    list_runs,
-    get_run_details,
-    list_tests,
-    list_failures,
-    get_regression_summary,
     compare_runs,
+    get_regression_summary,
+    get_run_details,
+    list_failures,
+    list_runs,
+    list_tests,
 )
-
 
 # Initialize FastMCP server
 mcp = FastMCP("Sentinel DV")
 
 # Global store instance
-_store: Optional[IndexStore] = None
-_config: Optional[SentinelDVConfig] = None
+_store: IndexStore | None = None
+_config: SentinelDVConfig | None = None
 
 
 def get_store() -> IndexStore:
     """Get or create index store instance."""
     global _store, _config
-    
+
     if _store is None:
         if _config is None:
             raise RuntimeError("Server not initialized. Call init_server() first.")
-        
+
         db_path = Path(_config.index.db_path)
         _store = IndexStore(db_path)
         _store.connect()
-    
+
     return _store
 
 
-def init_server(config_path: Optional[Path] = None) -> None:
+def init_server(config_path: Path | None = None) -> None:
     """
     Initialize server with configuration.
-    
+
     Args:
         config_path: Path to config.yaml file
     """
     global _config
-    
+
     if config_path:
         _config = load_config(config_path)
     else:
@@ -68,14 +66,14 @@ def init_server(config_path: Optional[Path] = None) -> None:
 
 @mcp.tool()
 def runs_list(
-    suite: Optional[str] = Field(None, description="Filter by suite name"),
-    ci_system: Optional[str] = Field(None, description="Filter by CI system"),
+    suite: str | None = Field(None, description="Filter by suite name"),
+    ci_system: str | None = Field(None, description="Filter by CI system"),
     page: int = Field(1, description="Page number (1-based)"),
     page_size: int = Field(100, description="Items per page"),
 ) -> dict[str, Any]:
     """
     List available test runs with filtering and pagination.
-    
+
     Returns a paginated list of runs, optionally filtered by suite or CI system.
     """
     store = get_store()
@@ -88,7 +86,7 @@ def runs_get(
 ) -> dict[str, Any]:
     """
     Get detailed information about a specific run.
-    
+
     Returns run metadata, status, CI information, and index details.
     """
     store = get_store()
@@ -97,16 +95,16 @@ def runs_get(
 
 @mcp.tool()
 def tests_list(
-    run_id: Optional[str] = Field(None, description="Filter by run ID"),
-    framework: Optional[str] = Field(None, description="Filter by framework (uvm|cocotb)"),
-    status: Optional[str] = Field(None, description="Filter by status (pass|fail|error)"),
-    name_pattern: Optional[str] = Field(None, description="Filter by name pattern"),
+    run_id: str | None = Field(None, description="Filter by run ID"),
+    framework: str | None = Field(None, description="Filter by framework (uvm|cocotb)"),
+    status: str | None = Field(None, description="Filter by status (pass|fail|error)"),
+    name_pattern: str | None = Field(None, description="Filter by name pattern"),
     page: int = Field(1, description="Page number"),
     page_size: int = Field(100, description="Items per page"),
 ) -> dict[str, Any]:
     """
     List tests with filtering and pagination.
-    
+
     Returns tests matching the specified filters with pagination support.
     """
     store = get_store()
@@ -123,17 +121,17 @@ def tests_list(
 
 @mcp.tool()
 def failures_list(
-    test_id: Optional[str] = Field(None, description="Filter by test ID"),
-    run_id: Optional[str] = Field(None, description="Filter by run ID"),
-    category: Optional[str] = Field(None, description="Filter by category"),
-    severity: Optional[str] = Field(None, description="Filter by severity"),
-    tags_any: Optional[list[str]] = Field(None, description="Filter by any of these tags"),
+    test_id: str | None = Field(None, description="Filter by test ID"),
+    run_id: str | None = Field(None, description="Filter by run ID"),
+    category: str | None = Field(None, description="Filter by category"),
+    severity: str | None = Field(None, description="Filter by severity"),
+    tags_any: list[str] | None = Field(None, description="Filter by any of these tags"),
     page: int = Field(1, description="Page number"),
     page_size: int = Field(100, description="Items per page"),
 ) -> dict[str, Any]:
     """
     List failures with filtering and pagination.
-    
+
     Returns failures matching the specified filters with full taxonomy and evidence.
     """
     store = get_store()
@@ -156,7 +154,7 @@ def regressions_summary(
 ) -> dict[str, Any]:
     """
     Get regression analytics for a test suite.
-    
+
     Returns pass rates, trends, and top failure signatures over the specified time window.
     """
     store = get_store()
@@ -170,7 +168,7 @@ def runs_diff(
 ) -> dict[str, Any]:
     """
     Compare two runs to identify changes.
-    
+
     Returns test status changes, new failures, resolved failures, and coverage deltas.
     """
     store = get_store()
@@ -185,7 +183,7 @@ def main():
     """Main entry point for the MCP server."""
     # Initialize with default config
     init_server()
-    
+
     # Run server
     mcp.run()
 

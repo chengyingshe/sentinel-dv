@@ -4,15 +4,14 @@ Full implementation would scan artifact roots and build index.
 """
 
 from pathlib import Path
-from typing import List
 
 
 class ArtifactIndexer:
     """Placeholder for artifact indexing."""
 
-    def __init__(self, artifact_roots: List[str]):
+    def __init__(self, artifact_roots: list[str]):
         """Initialize indexer.
-        
+
         Args:
             artifact_roots: List of artifact root directories.
         """
@@ -20,7 +19,7 @@ class ArtifactIndexer:
 
     def scan_artifacts(self) -> int:
         """Scan artifact roots and count files.
-        
+
         Returns:
             Number of artifacts found.
         """
@@ -33,7 +32,7 @@ class ArtifactIndexer:
 
     def index_all(self) -> None:
         """Index all artifacts.
-        
+
         Full implementation would:
         1. Scan artifact roots
         2. Parse files using adapters

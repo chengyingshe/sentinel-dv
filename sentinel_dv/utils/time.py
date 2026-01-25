@@ -1,7 +1,6 @@
 """Time utilities for Sentinel DV."""
 
 from datetime import datetime, timezone
-from typing import Optional
 
 
 def now_utc() -> datetime:
@@ -73,7 +72,7 @@ def ns_to_human(nanoseconds: int) -> str:
         return f"{nanoseconds / 1_000_000_000:.2f}s"
 
 
-def parse_simulation_time(time_str: str) -> Optional[int]:
+def parse_simulation_time(time_str: str) -> int | None:
     """Parse simulation time string to nanoseconds.
 
     Supports formats:

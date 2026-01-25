@@ -1,12 +1,11 @@
 """Failure and diagnostic schemas for Sentinel DV."""
 
 from datetime import datetime
-from typing import Literal, Optional
+from typing import Literal
 
 from pydantic import BaseModel, Field
 
 from sentinel_dv.schemas.common import EvidenceRef
-
 
 # Severity levels
 Severity = Literal["info", "warning", "error", "fatal"]
@@ -52,9 +51,9 @@ class FailureEvent(BaseModel):
         max_length=4096,
         description="Full message (bounded and redacted)",
     )
-    time_ns: Optional[int] = Field(None, ge=0, description="Simulation time in nanoseconds")
-    phase: Optional[str] = Field(None, description="UVM phase (if applicable)")
-    component: Optional[str] = Field(
+    time_ns: int | None = Field(None, ge=0, description="Simulation time in nanoseconds")
+    phase: str | None = Field(None, description="UVM phase (if applicable)")
+    component: str | None = Field(
         None, description="Component path or module name where failure occurred"
     )
     tags: list[str] = Field(

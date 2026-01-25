@@ -2,6 +2,12 @@
 
 import pytest
 
+from sentinel_dv.utils.bounded_text import (
+    count_lines,
+    extract_excerpt,
+    normalize_whitespace,
+    truncate_text,
+)
 from sentinel_dv.utils.hashing import sha256_hex, stable_signature
 from sentinel_dv.utils.time import (
     now_utc,
@@ -9,12 +15,6 @@ from sentinel_dv.utils.time import (
     parse_rfc3339,
     parse_simulation_time,
     to_rfc3339,
-)
-from sentinel_dv.utils.bounded_text import (
-    count_lines,
-    extract_excerpt,
-    normalize_whitespace,
-    truncate_text,
 )
 
 
@@ -125,7 +125,7 @@ class TestBoundedText:
         text = "Line 1\nLine 2\nLine 3"
         result = normalize_whitespace(text, single_line=True)
         assert "\n" not in result
-        assert "Line 1 Line 2 Line 3" == result
+        assert result == "Line 1 Line 2 Line 3"
 
     def test_count_lines(self):
         """count_lines should count lines correctly."""

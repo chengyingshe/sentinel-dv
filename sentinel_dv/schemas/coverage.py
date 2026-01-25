@@ -1,11 +1,10 @@
 """Coverage schemas for Sentinel DV."""
 
-from typing import Literal, Optional
+from typing import Literal
 
 from pydantic import BaseModel, Field, field_validator
 
 from sentinel_dv.schemas.common import EvidenceRef
-
 
 # Coverage kinds
 CoverageKind = Literal["functional", "code", "assertion", "toggle", "fsm", "unknown"]
@@ -22,8 +21,8 @@ class CoverageMetric(BaseModel):
         ..., description="Scope (e.g., tb.env.axi_agent)", min_length=1
     )
     covered: float = Field(..., ge=0.0, le=100.0, description="Coverage percentage (0-100)")
-    hits: Optional[int] = Field(None, ge=0, description="Number of hits")
-    total: Optional[int] = Field(None, ge=0, description="Total possible hits")
+    hits: int | None = Field(None, ge=0, description="Number of hits")
+    total: int | None = Field(None, ge=0, description="Total possible hits")
     bins_missed: list[str] = Field(
         default_factory=list,
         max_length=50,
@@ -32,11 +31,10 @@ class CoverageMetric(BaseModel):
 
     @field_validator("total")
     @classmethod
-    def validate_total(cls, v: Optional[int], info) -> Optional[int]:
+    def validate_total(cls, v: int | None, info) -> int | None:
         """Ensure total >= hits if both present."""
-        if v is not None and info.data.get("hits") is not None:
-            if v < info.data["hits"]:
-                raise ValueError("total must be >= hits")
+        if v is not None and info.data.get("hits") is not None and v < info.data["hits"]:
+            raise ValueError("total must be >= hits")
         return v
 
     class Config:
@@ -59,7 +57,7 @@ class CoverageSummary(BaseModel):
     """
 
     run_id: str = Field(..., description="Run identifier")
-    test_id: Optional[str] = Field(
+    test_id: str | None = Field(
         None, description="Test identifier (None for aggregated coverage)"
     )
     kind: CoverageKind = Field(..., description="Coverage type")

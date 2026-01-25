@@ -1,11 +1,10 @@
 """Assertion schemas for Sentinel DV."""
 
-from typing import Literal, Optional
+from typing import Literal
 
 from pydantic import BaseModel, Field
 
 from sentinel_dv.schemas.common import EvidenceRef
-
 
 # Assertion languages
 AssertionLanguage = Literal["sva", "immediate", "psl", "unknown"]
@@ -14,8 +13,8 @@ AssertionLanguage = Literal["sva", "immediate", "psl", "unknown"]
 class AssertionIntent(BaseModel):
     """Assertion intent/purpose metadata."""
 
-    protocol: Optional[str] = Field(None, description="Protocol this assertion checks")
-    requirement: Optional[str] = Field(None, description="Requirement or spec reference")
+    protocol: str | None = Field(None, description="Protocol this assertion checks")
+    requirement: str | None = Field(None, description="Requirement or spec reference")
 
 
 class AssertionInfo(BaseModel):
@@ -33,13 +32,13 @@ class AssertionInfo(BaseModel):
     )
     file: str = Field(..., description="Source file path", min_length=1)
     line: int = Field(..., ge=1, description="Line number in source file")
-    intent: Optional[AssertionIntent] = Field(None, description="Assertion intent metadata")
+    intent: AssertionIntent | None = Field(None, description="Assertion intent metadata")
     signals: list[str] = Field(
         default_factory=list,
         max_length=50,
         description="Signals referenced in assertion (best-effort)",
     )
-    enabled_in_run: Optional[bool] = Field(
+    enabled_in_run: bool | None = Field(
         None, description="Whether assertion was enabled in a specific run"
     )
 
@@ -71,7 +70,7 @@ class AssertionFailure(BaseModel):
 
     assertion_id: str = Field(..., description="Reference to AssertionInfo.id")
     test_id: str = Field(..., description="Test where assertion failed")
-    time_ns: Optional[int] = Field(None, ge=0, description="Simulation time in nanoseconds")
+    time_ns: int | None = Field(None, ge=0, description="Simulation time in nanoseconds")
     message: str = Field(
         ...,
         max_length=2048,

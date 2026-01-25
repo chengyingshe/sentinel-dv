@@ -3,12 +3,10 @@
 This module implements all 14 MCP tools documented in docs/tools/overview.md.
 """
 
-from typing import Any, Optional
-from fastmcp import FastMCP
+from typing import Any
 
 from sentinel_dv.indexing.store import IndexStore
 from sentinel_dv.schemas.common import PaginationInfo
-
 
 # ============================================================================
 # Tool implementations
@@ -16,21 +14,21 @@ from sentinel_dv.schemas.common import PaginationInfo
 
 def list_runs(
     store: IndexStore,
-    suite: Optional[str] = None,
-    ci_system: Optional[str] = None,
+    suite: str | None = None,
+    ci_system: str | None = None,
     page: int = 1,
     page_size: int = 100,
 ) -> dict[str, Any]:
     """
     List available test runs.
-    
+
     Args:
         store: Index store instance
         suite: Filter by suite name
         ci_system: Filter by CI system
         page: Page number (1-based)
         page_size: Items per page
-        
+
     Returns:
         Dictionary with runs and pagination info
     """
@@ -49,11 +47,11 @@ def list_runs(
 def get_run_details(store: IndexStore, run_id: str) -> dict[str, Any]:
     """
     Get detailed information about a specific run.
-    
+
     Args:
         store: Index store instance
         run_id: Run identifier
-        
+
     Returns:
         Run details dictionary
     """
@@ -65,16 +63,16 @@ def get_run_details(store: IndexStore, run_id: str) -> dict[str, Any]:
 
 def list_tests(
     store: IndexStore,
-    run_id: Optional[str] = None,
-    framework: Optional[str] = None,
-    status: Optional[str] = None,
-    name_pattern: Optional[str] = None,
+    run_id: str | None = None,
+    framework: str | None = None,
+    status: str | None = None,
+    name_pattern: str | None = None,
     page: int = 1,
     page_size: int = 100,
 ) -> dict[str, Any]:
     """
     List tests with filtering and pagination.
-    
+
     Args:
         store: Index store instance
         run_id: Filter by run
@@ -83,7 +81,7 @@ def list_tests(
         name_pattern: Filter by name pattern
         page: Page number
         page_size: Items per page
-        
+
     Returns:
         Dictionary with tests and pagination
     """
@@ -95,9 +93,9 @@ def list_tests(
         page=page,
         page_size=page_size
     )
-    
+
     total_pages = (total + page_size - 1) // page_size
-    
+
     return {
         "tests": results,
         "pagination": PaginationInfo(
@@ -111,17 +109,17 @@ def list_tests(
 
 def list_failures(
     store: IndexStore,
-    test_id: Optional[str] = None,
-    run_id: Optional[str] = None,
-    category: Optional[str] = None,
-    severity: Optional[str] = None,
-    tags_any: Optional[list[str]] = None,
+    test_id: str | None = None,
+    run_id: str | None = None,
+    category: str | None = None,
+    severity: str | None = None,
+    tags_any: list[str] | None = None,
     page: int = 1,
     page_size: int = 100,
 ) -> dict[str, Any]:
     """
     List failures with filtering.
-    
+
     Args:
         store: Index store instance
         test_id: Filter by test
@@ -131,7 +129,7 @@ def list_failures(
         tags_any: Filter by any of these tags
         page: Page number
         page_size: Items per page
-        
+
     Returns:
         Dictionary with failures and pagination
     """
@@ -144,9 +142,9 @@ def list_failures(
         page=page,
         page_size=page_size
     )
-    
+
     total_pages = (total + page_size - 1) // page_size
-    
+
     return {
         "failures": results,
         "pagination": PaginationInfo(
@@ -165,12 +163,12 @@ def get_regression_summary(
 ) -> dict[str, Any]:
     """
     Get regression summary for a suite.
-    
+
     Args:
         store: Index store instance
         suite: Suite name
         window_days: Time window in days
-        
+
     Returns:
         Regression summary
     """
@@ -190,12 +188,12 @@ def compare_runs(
 ) -> dict[str, Any]:
     """
     Compare two runs (diff).
-    
+
     Args:
         store: Index store instance
         base_run_id: Base run ID
         compare_run_id: Compare run ID
-        
+
     Returns:
         Diff summary
     """

@@ -2,12 +2,12 @@
 
 import pytest
 
+from sentinel_dv.normalization.redaction import Redactor, redact
 from sentinel_dv.normalization.signatures import (
     generate_failure_signature,
     normalize_failure_summary,
 )
 from sentinel_dv.normalization.taxonomy import FailureTaxonomy
-from sentinel_dv.normalization.redaction import Redactor, redact
 
 
 class TestFailureSignatures:
@@ -30,12 +30,12 @@ class TestFailureSignatures:
         """normalize_failure_summary should remove transient data."""
         msg = "UVM_ERROR @ 1250ns: Assertion failed at line 42, address 0x12345678"
         normalized = normalize_failure_summary(msg)
-        
+
         # Should not contain:
         assert "UVM_ERROR" not in normalized
         assert "@" not in normalized or "1250ns" not in normalized
         assert "0x12345678" not in normalized  # Address redacted
-        
+
     def test_normalize_removes_timestamps(self):
         """Normalization should remove simulation timestamps."""
         msg = "Error @ 1.25us: Transaction failed"
@@ -86,7 +86,7 @@ class TestFailureTaxonomy:
         """Should extract relevant tags from message."""
         msg = "AXI4 BRESP received DECERR for write transaction"
         tags = FailureTaxonomy.extract_tags(msg, "protocol")
-        
+
         assert "AXI4" in tags
         assert "BRESP" in tags
         assert "DECERR" in tags

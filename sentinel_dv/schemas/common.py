@@ -4,10 +4,9 @@ This module defines base types and enums shared by all schema modules.
 """
 
 from datetime import datetime
-from typing import Literal, Optional
+from typing import Literal
 
 from pydantic import BaseModel, Field, field_validator
-
 
 # Evidence kinds
 EvidenceKind = Literal["log", "report", "coverage", "waveform_summary", "artifact"]
@@ -19,14 +18,14 @@ CISystem = Literal["jenkins", "gitlab", "github-actions", "azure-devops", "unkno
 class TimeSpan(BaseModel):
     """Time or line span for evidence references."""
 
-    start_line: Optional[int] = Field(None, ge=1, description="Starting line number (1-indexed)")
-    end_line: Optional[int] = Field(None, ge=1, description="Ending line number (1-indexed)")
-    start_time_ns: Optional[int] = Field(None, ge=0, description="Starting time in nanoseconds")
-    end_time_ns: Optional[int] = Field(None, ge=0, description="Ending time in nanoseconds")
+    start_line: int | None = Field(None, ge=1, description="Starting line number (1-indexed)")
+    end_line: int | None = Field(None, ge=1, description="Ending line number (1-indexed)")
+    start_time_ns: int | None = Field(None, ge=0, description="Starting time in nanoseconds")
+    end_time_ns: int | None = Field(None, ge=0, description="Ending time in nanoseconds")
 
     @field_validator("end_line")
     @classmethod
-    def validate_line_range(cls, v: Optional[int], info) -> Optional[int]:
+    def validate_line_range(cls, v: int | None, info) -> int | None:
         """Ensure end_line >= start_line if both present."""
         if v is not None and info.data.get("start_line") is not None:
             if v < info.data["start_line"]:
@@ -35,7 +34,7 @@ class TimeSpan(BaseModel):
 
     @field_validator("end_time_ns")
     @classmethod
-    def validate_time_range(cls, v: Optional[int], info) -> Optional[int]:
+    def validate_time_range(cls, v: int | None, info) -> int | None:
         """Ensure end_time_ns >= start_time_ns if both present."""
         if v is not None and info.data.get("start_time_ns") is not None:
             if v < info.data["start_time_ns"]:
@@ -52,11 +51,11 @@ class EvidenceRef(BaseModel):
 
     kind: EvidenceKind = Field(..., description="Type of evidence")
     path: str = Field(..., description="Relative path within artifact root", min_length=1)
-    span: Optional[TimeSpan] = Field(None, description="Line or time range within file")
-    extract: Optional[str] = Field(
+    span: TimeSpan | None = Field(None, description="Line or time range within file")
+    extract: str | None = Field(
         None, max_length=1024, description="Bounded excerpt (may be redacted)"
     )
-    hash: Optional[str] = Field(
+    hash: str | None = Field(
         None, pattern=r"^[a-f0-9]{64}$", description="SHA-256 hash of referenced chunk"
     )
 
@@ -75,8 +74,8 @@ class CIInfo(BaseModel):
     """CI/CD system information for a run."""
 
     system: CISystem = Field(..., description="CI system type")
-    job_url: Optional[str] = Field(None, description="URL to CI job")
-    build_id: Optional[str] = Field(None, description="CI build identifier")
+    job_url: str | None = Field(None, description="URL to CI job")
+    build_id: str | None = Field(None, description="CI build identifier")
 
 
 class RunRef(BaseModel):
@@ -85,7 +84,7 @@ class RunRef(BaseModel):
     run_id: str = Field(..., description="Stable run identifier", min_length=1)
     suite: str = Field(..., description="Test suite or regression name", min_length=1)
     created_at: datetime = Field(..., description="Run creation timestamp (RFC3339)")
-    ci: Optional[CIInfo] = Field(None, description="CI system information")
+    ci: CIInfo | None = Field(None, description="CI system information")
 
     class Config:
         json_schema_extra = {
@@ -123,7 +122,7 @@ class ErrorResponse(BaseModel):
         "LIMIT_EXCEEDED",
     ] = Field(..., description="Error code")
     message: str = Field(..., description="Human-readable error message")
-    details: Optional[dict[str, str]] = Field(None, description="Additional error details")
+    details: dict[str, str] | None = Field(None, description="Additional error details")
 
     class Config:
         json_schema_extra = {

@@ -1,10 +1,9 @@
 """Hashing utilities for Sentinel DV."""
 
 import hashlib
-from typing import Union
 
 
-def sha256_hex(data: Union[str, bytes]) -> str:
+def sha256_hex(data: str | bytes) -> str:
     """Compute SHA-256 hash and return as hexadecimal string.
 
     Args:
