@@ -76,8 +76,8 @@ class CocotbParser:
 
                 # Create failure event
                 failure = FailureEvent(
-                    severity=taxonomy.severity.value,
-                    category=taxonomy.category.value,
+                    severity=taxonomy.severity,
+                    category=taxonomy.category,
                     summary=self.redactor.redact(truncate_text(message, 200)),
                     message=self.redactor.redact(truncate_text(details, 2000)),
                     tags=taxonomy.tags,

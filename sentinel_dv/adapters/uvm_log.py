@@ -363,8 +363,8 @@ class UVMLogParser:
 
             # Create failure event
             failure = FailureEvent(
-                severity=taxonomy.severity.value,
-                category=taxonomy.category.value,
+                severity=taxonomy.severity,
+                category=taxonomy.category,
                 summary=summary,
                 message=message_full,
                 component=msg.component,

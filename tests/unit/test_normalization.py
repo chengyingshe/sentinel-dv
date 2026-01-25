@@ -104,7 +104,7 @@ class TestRedaction:
 
     def test_redact_github_tokens(self):
         """Should redact GitHub personal access tokens."""
-        text = "Token: ghp_1234567890abcdefghijklmnopqrstuv"
+        text = "Token: ghp_1234567890abcdefghijklmnopqrstuvwxyz"
         redacted = redact(text)
         assert "ghp_" not in redacted
         assert "<GITHUB_TOKEN>" in redacted
