@@ -321,7 +321,7 @@ class UVMLogParser:
         # Default to pass if no errors
         return "pass"
 
-    def _extract_failures(self, messages: list[UVMMessage], log_path: Path) -> list[FailureEvent]:
+    def _extract_failures(self, messages: list[UVMMessage], log_path: Path) -> list[dict]:
         """
         Extract failure events from UVM messages.
 
@@ -330,7 +330,7 @@ class UVMLogParser:
             log_path: Path to log file
 
         Returns:
-            List of FailureEvent instances
+            List of failure event dicts (IDs added during indexing)
         """
         failures = []
 
