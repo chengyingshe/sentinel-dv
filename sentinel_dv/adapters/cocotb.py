@@ -99,7 +99,7 @@ class CocotbParser:
                 status=status,
                 framework="cocotb",
                 duration=int(time_sec * 1000),  # Convert to ms
-                evidence=[EvidenceRef(kind="junit_xml", path=str(xml_path))],
+                evidence=[EvidenceRef(kind="artifact", path=xml_path.name)],
             )
             tests.append(test)
 

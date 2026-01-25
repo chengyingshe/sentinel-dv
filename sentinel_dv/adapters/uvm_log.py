@@ -398,14 +398,12 @@ class UVMLogParser:
         if not components:
             return None
 
-        # Build simplified UVM topology
+        # Build simplified UVM topology  
         uvm_top = UvmTopology(
-            test_name="unknown",
-            env_name="env" if any("env" in c for c in components) else None,
+            test_class="unknown",
             agents=[],  # Would need more sophisticated parsing
             scoreboards=[],
             monitors=[],
-            interfaces=[],
         )
 
         return TestTopology(framework="uvm", dut_top=None, uvm=uvm_top)
