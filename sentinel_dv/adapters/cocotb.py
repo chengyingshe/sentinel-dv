@@ -13,7 +13,7 @@ from pathlib import Path
 from sentinel_dv.normalization.redaction import Redactor
 from sentinel_dv.schemas.common import EvidenceRef
 from sentinel_dv.schemas.failures import FailureEvent
-from sentinel_dv.schemas.tests import TestCase, TestStatus
+from sentinel_dv.schemas.tests import TestCase
 from sentinel_dv.taxonomy_engine import classify_failure
 from sentinel_dv.utils.bounded_text import truncate_text
 
