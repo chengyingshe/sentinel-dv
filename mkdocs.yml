@@ -1,9 +1,9 @@
 site_name: Sentinel DV
-site_url: https://yourusername.github.io/sentinel-dv/
+site_url: https://kiranreddi.github.io/sentinel-dv/
 site_description: Security-first MCP server for verification intelligence (SystemVerilog/UVM/cocotb)
 site_author: Sentinel DV Team
-repo_url: https://github.com/yourusername/sentinel-dv
-repo_name: yourusername/sentinel-dv
+repo_url: https://github.com/kiranreddi/sentinel-dv
+repo_name: kiranreddi/sentinel-dv
 edit_uri: edit/main/docs/
 copyright: Copyright &copy; 2026 Sentinel DV Team
 
@@ -154,6 +154,7 @@ nav:
       - Installation: getting-started/installation.md
       - Configuration: getting-started/configuration.md
       - First Queries: getting-started/first-queries.md
+      - How to Use (Complete Guide): how-to-use.md
   - Architecture:
       - Overview: architecture/overview.md
       - Schemas: architecture/schemas.md
