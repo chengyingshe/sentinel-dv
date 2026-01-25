@@ -14,7 +14,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from sentinel_dv.normalization.redaction import Redactor
-from sentinel_dv.schemas.common import EvidenceRef, TimeSpan
+from sentinel_dv.schemas.common import EvidenceRef
 from sentinel_dv.schemas.failures import FailureEvent
 from sentinel_dv.schemas.tests import (
     TestCase,
