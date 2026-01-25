@@ -83,8 +83,8 @@ class CocotbParser:
                     tags=taxonomy.tags,
                     evidence=[
                         EvidenceRef(
-                            kind="junit_xml",
-                            path=str(xml_path),
+                            kind="artifact",
+                            path=xml_path.name,  # Use relative path (just filename)
                             extract=truncate_text(details, 1000),
                         )
                     ],

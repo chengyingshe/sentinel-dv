@@ -353,8 +353,8 @@ class UVMLogParser:
             # Create evidence reference
             evidence = [
                 EvidenceRef(
-                    kind="log_line",
-                    path=str(log_path),
+                    kind="log",
+                    path=log_path.name,  # Use relative path (just filename)
                     start_line=msg.line_number,
                     end_line=msg.line_number,
                     extract=extract_excerpt(msg.message, 500),
