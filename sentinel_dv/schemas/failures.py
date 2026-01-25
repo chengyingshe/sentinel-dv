@@ -37,8 +37,8 @@ class FailureEvent(BaseModel):
     - Compilation/elaboration errors
     """
 
-    id: str = Field(..., description="Stable event identifier", min_length=1)
-    test_id: str = Field(..., description="Test this failure occurred in")
+    id: str | None = Field(None, description="Stable event identifier", min_length=1)
+    test_id: str | None = Field(None, description="Test this failure occurred in")
     severity: Severity = Field(..., description="Event severity level")
     category: FailureCategory = Field(..., description="Failure category")
     summary: str = Field(

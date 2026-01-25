@@ -369,7 +369,7 @@ class UVMLogParser:
                 message=message_full,
                 component=msg.component,
                 phase=msg.phase,
-                time=TimeSpan(ns=msg.time_ns) if msg.time_ns else None,
+                time_ns=msg.time_ns,
                 tags=taxonomy.tags,
                 evidence=evidence,
             )
