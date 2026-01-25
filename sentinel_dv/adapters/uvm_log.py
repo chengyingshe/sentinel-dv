@@ -14,7 +14,6 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from sentinel_dv.normalization.redaction import Redactor
-from sentinel_dv.schemas.failures import FailureEvent
 from sentinel_dv.taxonomy_engine import classify_failure
 from sentinel_dv.utils.bounded_text import extract_excerpt, truncate_text
 
@@ -353,29 +352,29 @@ class UVMLogParser:
             summary = self.redactor.redact(truncate_text(msg.message, 200))
             message_full = self.redactor.redact(truncate_text(msg.message, 2000))
 
-            # Create evidence reference
-            evidence = [
-                EvidenceRef(
-                    kind="log",
-                    path=log_path.name,  # Use relative path (just filename)
-                    start_line=msg.line_number,
-                    end_line=msg.line_number,
-                    extract=extract_excerpt(msg.message, 500),
-                )
-            ]
-
-            # Create failure event
-            failure = FailureEvent(
-                severity=taxonomy.severity,
-                category=taxonomy.category,
-                summary=summary,
-                message=message_full,
-                component=msg.component,
-                phase=msg.phase,
-                time_ns=msg.time_ns,
-                tags=taxonomy.tags,
-                evidence=evidence,
-            )
+            # Create failure event dict (IDs added during indexing)
+            failure = {
+                "severity": taxonomy.severity,
+                "category": taxonomy.category,
+                "summary": summary,
+                "message": message_full,
+                "component": msg.component,
+                "phase": msg.phase,
+                "time_ns": msg.time_ns,
+                "tags": taxonomy.tags,
+                "evidence": [
+                    {
+                        "kind": "log",
+                        "path": log_path.name,  # Use relative path (just filename)
+                        "span": {
+                            "start_line": msg.line_number,
+                            "end_line": msg.line_number,
+                        },
+                        "extract": extract_excerpt(msg.message, 500),
+                        "hash": None,
+                    }
+                ],
+            }
 
             failures.append(failure)
 
