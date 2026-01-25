@@ -17,7 +17,6 @@ from sentinel_dv.adapters.cocotb import CocotbParser
 from sentinel_dv.adapters.uvm_log import UVMLogParser
 from sentinel_dv.ids import generate_failure_id, generate_run_id, generate_test_id
 from sentinel_dv.indexing.store import IndexStore
-from sentinel_dv.schemas.tests import TestStatus
 
 
 class TestEndToEndWorkflow:
@@ -39,7 +38,7 @@ UVM_INFO @ 200 ns: (uvm_test_top) [TEST] Test completed
         result = parser.parse_log(log_file)
 
         assert result["test"] is not None
-        assert result["test"].framework == "uvm"
+        assert result["test"]["framework"] == "uvm"
         assert len(result["failures"]) > 0
 
         # Create index store
@@ -53,7 +52,7 @@ UVM_INFO @ 200 ns: (uvm_test_top) [TEST] Test completed
             )
 
             test_id, test_id_full = generate_test_id(
-                run_id_full=run_id_full, framework="uvm", test_name=result["test"].name
+                run_id_full=run_id_full, framework="uvm", test_name=result["test"]["name"]
             )
 
             # Insert run
@@ -71,7 +70,7 @@ UVM_INFO @ 200 ns: (uvm_test_top) [TEST] Test completed
                 test_id_full=test_id_full,
                 run_id=run_id,
                 framework="uvm",
-                name=result["test"].name,
+                name=result["test"]["name"],
                 status="fail",
                 created_at="2026-01-25T10:00:00Z",
             )
@@ -80,9 +79,9 @@ UVM_INFO @ 200 ns: (uvm_test_top) [TEST] Test completed
             failure = result["failures"][0]
             failure_id, failure_id_full = generate_failure_id(
                 test_id_full=test_id_full,
-                severity=failure.severity,
-                category=failure.category,
-                summary=failure.summary,
+                severity=failure["severity"],
+                category=failure["category"],
+                summary=failure["summary"],
             )
 
             store.insert_failure(
@@ -90,11 +89,11 @@ UVM_INFO @ 200 ns: (uvm_test_top) [TEST] Test completed
                 failure_id_full=failure_id_full,
                 test_id=test_id,
                 run_id=run_id,
-                severity=failure.severity,
-                category=failure.category,
-                summary=failure.summary,
-                message=failure.message,
-                tags=failure.tags,
+                severity=failure["severity"],
+                category=failure["category"],
+                summary=failure["summary"],
+                message=failure["message"],
+                tags=failure["tags"],
             )
 
             # Query back
@@ -126,7 +125,7 @@ UVM_INFO @ 200 ns: (uvm_test_top) [TEST] Test completed
         result = parser.parse_junit_xml(xml_file)
 
         assert len(result["tests"]) == 1
-        assert result["tests"][0].status == TestStatus.FAIL
+        assert result["tests"][0]["status"] == "fail"
         assert len(result["failures"]) == 1
 
     def test_id_generation_determinism(self):
@@ -166,7 +165,7 @@ UVM_INFO @ 200 ns: (uvm_test_top) [TEST] Test completed
             framework="uvm",
         )
 
-        assert result.category.value == "scoreboard"
+        assert result.category == "scoreboard"
         assert "scoreboard" in result.tags
 
         # Test assertion classification
@@ -174,7 +173,7 @@ UVM_INFO @ 200 ns: (uvm_test_top) [TEST] Test completed
             message="ASSERTION FAILED: data_valid_check", severity="UVM_ERROR"
         )
 
-        assert result.category.value == "assertion"
+        assert result.category == "assertion"
         assert "assertion" in result.tags
 
         # Test timeout classification
@@ -182,5 +181,5 @@ UVM_INFO @ 200 ns: (uvm_test_top) [TEST] Test completed
             message="TIMEOUT: objection timeout in run phase", severity="UVM_FATAL"
         )
 
-        assert result.category.value == "timeout"
+        assert result.category == "timeout"
         assert "timeout" in result.tags
