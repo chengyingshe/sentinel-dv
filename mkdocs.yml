@@ -150,15 +150,27 @@ nav:
   - Home: index.md
   - Getting Started:
       - Quick Start: getting-started/quick-start.md
+      - Installation: getting-started/installation.md
       - How to Use (Complete Guide): how-to-use.md
   - Architecture:
       - Overview: architecture/overview.md
+      - Security Model: architecture/security.md
+      - Schema Reference: architecture/schemas.md
       - ID Strategy: ids.md
       - Taxonomy Rules: taxonomy.md
       - Index Store: index-store.md
   - Tool Reference:
       - Overview: tools/overview.md
+      - Discovery Tools: tools/discovery.md
+      - Detail Tools: tools/detail.md
+      - Analysis Tools: tools/analysis.md
+      - Regression Tools: tools/regression.md
+  - Guides:
+      - Simulator Support: guides/simulator-support.md
+      - Performance Optimization: guides/performance.md
+  - Adapters:
+      - Custom Adapters: adapters/custom.md
   - About:
       - Changelog: about/changelog.md
       - License: about/license.md
-      - Security: about/security.md
+      - Security Policy: about/security.md
