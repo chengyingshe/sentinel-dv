@@ -20,6 +20,9 @@ from sentinel_dv.tools.core import (
     list_runs,
     list_tests,
 )
+import argparse
+import sys
+from pathlib import Path
 
 # Initialize FastMCP server
 mcp = FastMCP("Sentinel DV")
@@ -37,7 +40,7 @@ def get_store() -> IndexStore:
         if _config is None:
             raise RuntimeError("Server not initialized. Call init_server() first.")
 
-        db_path = Path(_config.index.db_path)
+        db_path = Path(_config.index.path)
         _store = IndexStore(db_path)
         _store.connect()
 
@@ -183,8 +186,15 @@ def runs_diff(
 
 def main():
     """Main entry point for the MCP server."""
-    # Initialize with default config
-    init_server()
+    # Parse command-line arguments
+    parser = argparse.ArgumentParser(description="Sentinel DV MCP Server")
+    parser.add_argument("--config", type=Path, help="Path to config.yaml file")
+    args, unknown = parser.parse_known_args()
+    new_argv = [sys.argv[0]] + unknown
+    sys.argv = new_argv
+
+    # Initialize with config
+    init_server(args.config)
 
     # Run server
     mcp.run()
